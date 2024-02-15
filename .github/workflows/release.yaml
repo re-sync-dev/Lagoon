@@ -25,10 +25,10 @@ jobs:
                       dir=${dir%*/}
                       name=${dir##*/}
 
-                      wally install
-                      rojo build -o ${name}.rbxl
+                      wally install --project-path=${dir}
+                      rojo build ${dir} -o ${name}.rbxl
                       ls
-                      rm Packages
+                      rm -r Packages
                       rm wally.lock
                   done
 
