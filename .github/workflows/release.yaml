@@ -36,7 +36,7 @@ jobs:
 
                   cd ./examples
                   ls
-                  zip Examples.zip *
+                  zip -r Examples.zip .
                   mv ./Examples.zip ..
                   cd ..
 
