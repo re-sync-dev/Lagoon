@@ -29,14 +29,13 @@ jobs:
                       rojo build ${dir} -o ${dir}/${name}.rbxl
                       rm -r ${dir}/Packages
                       rm ${dir}/wally.lock
-                      ls ${dir}
                   done
 
                   wally install
                   rojo build build.project.json -o Lagoon.rbxm
 
-
                   cd ./examples
+                  ls
                   zip Examples.zip *
                   mv ./Examples.zip ..
                   cd ..
