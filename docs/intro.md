@@ -20,4 +20,4 @@ The best time to use a trait is when you need to have methods or properties acce
 :::
 
 ## What are traits?
-Traits are simply put modules that services and controllers can inherit methods and properties from using `:ApplyTrait`
+Traits are simply put, modules that services and controllers can inherit methods and properties from.
