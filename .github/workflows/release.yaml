@@ -26,7 +26,7 @@ jobs:
                       name=${dir##*/}
 
                       wally install --project-path=${dir}
-                      rojo build ${dir} -o ${name}.rbxl
+                      rojo build ${dir} -o ${dir}/${name}.rbxl
                       rm -r ${dir}/Packages
                       rm ${dir}/wally.lock
                       ls ${dir}
@@ -34,6 +34,7 @@ jobs:
 
                   wally install
                   rojo build build.project.json -o Lagoon.rbxm
+
 
                   cd ./examples
                   zip Examples.zip *
