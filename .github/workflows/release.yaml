@@ -27,9 +27,9 @@ jobs:
 
                       wally install --project-path=${dir}
                       rojo build ${dir} -o ${name}.rbxl
-                      ls ${dir}
                       rm -r ${dir}/Packages
                       rm ${dir}/wally.lock
+                      ls ${dir}
                   done
 
                   wally install
