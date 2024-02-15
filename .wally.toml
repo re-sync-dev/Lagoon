@@ -1,8 +1,0 @@
-[package]
-name = "vyon/game"
-version = "1.0.0"
-registry = "https://github.com/UpliftGames/wally-index"
-realm = "shared"
-
-[dependencies]
-Lagoon = "vyon/lagoon@1.0.0"
