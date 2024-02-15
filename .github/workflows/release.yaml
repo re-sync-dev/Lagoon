@@ -1,0 +1,50 @@
+name: "tagged-release"
+
+on:
+    push:
+        branches:
+            - "main"
+jobs:
+    tagged-release:
+        name: "Tagged Release"
+        runs-on: "ubuntu-latest"
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            - uses: ok-nick/setup-aftman@v0.4.2
+              name: Setup Aftman
+              with:
+                  token: ${{ github.token }}
+
+            - name: "Build"
+              run: |
+                  for dir in ./examples/*/
+                  do
+                      dir=${dir%*/}
+                      name=${dir##*/}
+
+                      wally install --project-path=${dir}
+                      rojo build ${dir} -o ${name}.rbxl
+                      rm -r Packages
+                      rm wally.lock
+                  done
+
+                  wally install
+                  rojo build build.project.json -o Lagoon.rbxm
+
+                  cd ./examples
+                  zip Examples.zip *
+                  mv ./Examples.zip ..
+                  cd ..
+
+            - uses: "marvinpinto/action-automatic-releases@latest"
+              with:
+                  repo_token: "${{ secrets.GITHUB_TOKEN }}"
+                  prerelease: false
+                  automatic_release_tag: "Latest"
+                  files: |
+                      Lagoon.rbxm
+                      Examples.zip
+                      LICENSE

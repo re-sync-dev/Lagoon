@@ -1,0 +1,30 @@
+title = "Lagoon"
+gitRepoUrl = "https://github.com/re-sync-dev/Lagoon" # From Git
+gitSourceBranch = "main"
+changelog = true
+
+[docusaurus]
+favicon = "/icon.png"
+onBrokenLinks = "ignore"
+onBrokenMarkdownLinks = "warn"
+
+# From git:
+url = "https://re-sync-dev.github.io"
+projectName = "Lagoon"
+baseUrl = "/Lagoon"
+tagline = "The typesafe framework"
+
+[navbar]
+title = ""
+
+[navbar.logo]
+src = "/icon.png"
+alt = "Lagoon"
+
+[home]
+enabled = true
+includeReadme = false
+
+[footer]
+style = "dark"
+copyright = "Copyright © 2024 Re-Sync. Built with Moonwave and Docusaurus"
