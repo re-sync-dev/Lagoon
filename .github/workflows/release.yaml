@@ -27,7 +27,8 @@ jobs:
 
                       wally install
                       rojo build -o ${name}.rbxl
-                      rm -r Packages
+                      ls
+                      rm Packages
                       rm wally.lock
                   done
 
