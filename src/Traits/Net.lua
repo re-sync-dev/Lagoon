@@ -216,8 +216,12 @@ function Net:WaitFor(Name: string, Timeout: number?): (RemoteEvent | RemoteFunct
 
 	repeat
 		Time += task.wait(0.1)
-		Item = self._Pool[Name]
+		Item = self._Pool[Name] or script:FindFirstChild(Name)
 	until Time > (Timeout or DEFAULT_TIMEOUT) or Item ~= nil
+
+	if Item and not self._Pool[Name] then
+		self._Pool[Name] = Item
+	end
 
 	return Item
 end
@@ -233,7 +237,7 @@ end
 ]=]
 function Net:CreateSignal(Name: string): Signal?
 	if self._Pool[Name] then
-		error(`[{self.Name}(Net)]: Cannot create signal '{Name}' due to entry already existing.`)
+		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
 	end
 
@@ -253,7 +257,7 @@ end
 ]=]
 function Net:CreateRemote(Name: string, Class: "RemoteEvent" | "RemoteFunction"): (RemoteEvent | RemoteFunction)?
 	if self._Pool[Name] then
-		error(`[{self.Name}(Net)]: Cannot create signal '{Name}' due to entry already existing.`)
+		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
 	end
 
@@ -279,10 +283,10 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 	local Item: RemoteEvent | Signal = self._Pool[Name]
 
 	if not Item then
-		error(`[{self.Name}(Net)]: Signal '{Name}' doesn't exist.`)
+		error(`[Net]: Signal '{Name}' doesn't exist.`)
 		return
 	elseif typeof(Item) == "Instance" and not Item:IsA("RemoteEvent") then
-		error(`[{self.Name}(Net)]: RemoteEvent '{Name}' doesn't exist.`)
+		error(`[Net]: RemoteEvent '{Name}' doesn't exist.`)
 		return
 	end
 
@@ -323,7 +327,7 @@ function Net:Bind(Name: string, Callback: (...any) -> ())
 	local Remote: RemoteFunction = self._Pool[Name]
 
 	if typeof(Remote) ~= "Instance" or not Remote:IsA("RemoteFunction") then
-		error(`[{self.Name}(Net)]: RemoteFunction '{Name}' doesn't exist.`)
+		error(`[Net]: RemoteFunction '{Name}' doesn't exist.`)
 		return
 	end
 
@@ -353,10 +357,10 @@ function Net:Fire(Name: string, ...)
 	local Item: RemoteEvent | Signal = self._Pool[Name]
 
 	if not Item then
-		error(`[{self.Name}(Net)]: Signal '{Name}' doesn't exist.`)
+		error(`[Net]: Signal '{Name}' doesn't exist.`)
 		return
 	elseif typeof(Item) == "Instance" and not Item:IsA("RemoteEvent") then
-		error(`[{self.Name}(Net)]: Remote '{Name}' doesn't exist.`)
+		error(`[Net]: Remote '{Name}' doesn't exist.`)
 		return
 	end
 
@@ -388,7 +392,7 @@ function Net:Invoke(Name: string, ...)
 	local Remote: RemoteFunction = self._Pool[Name]
 
 	if not Remote then
-		error(`[{self.Name}(Net)]: RemoteFunction '{Name}' doesn't exist.`)
+		error(`[Net]: RemoteFunction '{Name}' doesn't exist.`)
 		return
 	end
 

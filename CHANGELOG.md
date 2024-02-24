@@ -1,3 +1,7 @@
+## 1.0.6
+- Fixed bug with `NetTrait:WaitFor` that would yield for a remote and then not add the remote to the pool if it exists.
+- Fixed old debugging relating code for `NetTrait` that was used in <1.0.0 versions.
+
 ## 1.0.1 - 1.0.5
 - Fixes to Remote related methods
 - Updated `NetTrait` description
