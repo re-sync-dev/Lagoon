@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v2.3.1">
 <title data-rh="true">Lagoon | Lagoon</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://re-sync-dev.github.io/Lagoon/api/Lagoon"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="Lagoon | Lagoon"><meta data-rh="true" name="description" content="Lagoon is a barebones typesafe framework that can be integrated anywhere."><meta data-rh="true" property="og:description" content="Lagoon is a barebones typesafe framework that can be integrated anywhere."><link data-rh="true" rel="icon" href="/Lagoon/icon.png"><link data-rh="true" rel="canonical" href="https://re-sync-dev.github.io/Lagoon/api/Lagoon"><link data-rh="true" rel="alternate" href="https://re-sync-dev.github.io/Lagoon/api/Lagoon" hreflang="en"><link data-rh="true" rel="alternate" href="https://re-sync-dev.github.io/Lagoon/api/Lagoon" hreflang="x-default"><link rel="stylesheet" href="/Lagoon/assets/css/styles.fdfd902f.css">
-<link rel="preload" href="/Lagoon/assets/js/runtime~main.42e96cbf.js" as="script">
-<link rel="preload" href="/Lagoon/assets/js/main.9a3a7e05.js" as="script">
+<link rel="preload" href="/Lagoon/assets/js/runtime~main.9db2eb94.js" as="script">
+<link rel="preload" href="/Lagoon/assets/js/main.e822ffaa.js" as="script">
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function e(e){document.documentElement.setAttribute("data-theme",e)}var t=function(){var e=null;try{e=localStorage.getItem("theme")}catch(e){}return e}();null!==t?e(t):window.matchMedia("(prefers-color-scheme: dark)").matches?e("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,e("light"))}()</script><div id="__docusaurus">
@@ -26,7 +26,7 @@ MyService<span class="token punctuation">.</span>IsService <span class="token op
 
 <span class="token keyword">return</span> Lagoon<span class="token punctuation">.</span><span class="token function">MakeService</span><span class="token punctuation">(</span>MyService<span class="token punctuation">)</span>
 </code></pre>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="MakeCotnroller"><code style="text-decoration:none">MakeCotnroller</code><a href="#MakeCotnroller" class="hash-link" aria-label="Direct link to MakeCotnroller" title="Direct link to MakeCotnroller">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/re-sync-dev/Lagoon/blob/main/src/init.lua#L74"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Lagoon<!-- -->.</code><code class="green_DgR4">MakeCotnroller</code><code>(</code><code>Module<!-- -->: </code><code class="blue_P4bS">T</code><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="MakeController"><code style="text-decoration:none">MakeController</code><a href="#MakeController" class="hash-link" aria-label="Direct link to MakeController" title="Direct link to MakeController">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/re-sync-dev/Lagoon/blob/main/src/init.lua#L74"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Lagoon<!-- -->.</code><code class="green_DgR4">MakeController</code><code>(</code><code>Module<!-- -->: </code><code class="blue_P4bS">T</code><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Takes in a table for the 'Module' parameter and wraps the module with a Lagoon Controller.</p>
 <p><strong>Usage:</strong><br><strong>MyController.lua</strong></p>
 <pre class="language-lua"><code class="language-lua"><span class="token comment">-- This is in a ModuleScript</span>
@@ -93,7 +93,7 @@ MyController<span class="token punctuation">.</span>IsController <span class="to
             }
         },
         {
-            &quot;name&quot;: &quot;MakeCotnroller&quot;,
+            &quot;name&quot;: &quot;MakeController&quot;,
             &quot;desc&quot;: &quot;Takes in a table for the &#x27;Module&#x27; parameter and wraps the module with a Lagoon Controller.\n\n**Usage:**   \n**MyController.lua**\n```lua\n-- This is in a ModuleScript\nlocal Lagoon = require(ReplicatedStorage.Packages.Lagoon)\n\nlocal MyController = {}\nMyController.IsController = true\n\nfunction MyController.PrintFromClient()\n\tprint(\&quot;Hello from the client!\&quot;)\nend\n\nreturn Lagoon.MakeController(MyController)\n```&quot;,
             &quot;params&quot;: [
                 {
@@ -135,8 +135,8 @@ MyController<span class="token punctuation">.</span>IsController <span class="to
         &quot;line&quot;: 23,
         &quot;path&quot;: &quot;src/init.lua&quot;
     }
-}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#MakeCotnroller" class="table-of-contents__link toc-highlight">.MakeCotnroller</a></li><li><a href="#MakeService" class="table-of-contents__link toc-highlight">.MakeService</a></li><li><a href="#MakeTrait" class="table-of-contents__link toc-highlight">.MakeTrait</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 Re-Sync. Built with Moonwave and Docusaurus</div></div></div></footer></div>
-<script src="/Lagoon/assets/js/runtime~main.42e96cbf.js"></script>
-<script src="/Lagoon/assets/js/main.9a3a7e05.js"></script>
+}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#MakeController" class="table-of-contents__link toc-highlight">.MakeController</a></li><li><a href="#MakeService" class="table-of-contents__link toc-highlight">.MakeService</a></li><li><a href="#MakeTrait" class="table-of-contents__link toc-highlight">.MakeTrait</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 Re-Sync. Built with Moonwave and Docusaurus</div></div></div></footer></div>
+<script src="/Lagoon/assets/js/runtime~main.9db2eb94.js"></script>
+<script src="/Lagoon/assets/js/main.e822ffaa.js"></script>
 </body>
 </html>
