@@ -51,7 +51,7 @@ end
 
 --[=[
 	@within Lagoon
-	@function MakeCotnroller
+	@function MakeController
 	@param Module T
 	Takes in a table for the 'Module' parameter and wraps the module with a Lagoon Controller.
 
