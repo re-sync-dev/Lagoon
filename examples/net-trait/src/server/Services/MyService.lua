@@ -20,7 +20,7 @@ local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 local MyService = {}
 
 function MyService:Init()
-	self:CreateRemote("Ping", "RemoteFunction")
+	self:CreateFunction("Ping")
 	self:Bind("Ping", function()
 		return "Pong"
 	end)

@@ -9,3 +9,4 @@
 	Vyon - https://github.com/Vyon
 	
 --]==]
+require(script.Services.MyService)

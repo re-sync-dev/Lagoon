@@ -7,4 +7,4 @@ function MyService:Print()
 	print("Hello World!")
 end
 
-return Lagoon.MakeService(MyService)
+return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net)

@@ -29,4 +29,26 @@ export type Signal<T...> = {
 	Wait: (self: Signal<T...>) -> T...,
 }
 
+-- Traits:
+export type Net = {
+	Name: string,
+
+	_Pool: { RemoteEvent | RemoteFunction | Signal<any> },
+
+	SerializePacket: (...any) -> { string | Instance },
+	DeserializePacket: (Packet: { string | Instance }) -> { any },
+
+	WaitFor: (self: Net, Name: string, Timeout: number?) -> (RemoteEvent | RemoteFunction | Signal<any>)?,
+
+	CreateSignal: (self: Net, Name: string) -> Signal<any>?,
+	CreateEvent: (self: Net, Name: string, IsUnreliable: boolean?) -> (RemoteEvent | UnreliableRemoteEvent)?,
+	CreateFunction: (self: Net, Name: string) -> RemoteFunction?,
+
+	Connect: (self: Net, Name: string, Callback: (...any) -> ()) -> (RBXScriptConnection | Connection)?,
+	Bind: (self: Net, Name: string, Callback: (...any) -> ()) -> (),
+
+	Fire: (self: Net, Name: string, ...any) -> (),
+	Invoke: (self: Net, Name: string, ...any) -> any,
+}
+
 return {}

@@ -247,21 +247,46 @@ end
 
 --[=[
 	@within NetTrait
-	@method CreateRemote
+	@method CreateEvent
 	@param Name string
-	@param Class "RemoteEvent" | "RemoteFunction"
+	@param IsUnreliable: boolean?
 
-	Adds a remote with the given name to the net pool.
+	Appends a RemoteEvent with the given name to the net pool.
 
-	@return (RemoteEvent | RemoteFunction)?
+	@return (RemoteEvent | UnreliableRemoteEvent)?
 ]=]
-function Net:CreateRemote(Name: string, Class: "RemoteEvent" | "RemoteFunction"): (RemoteEvent | RemoteFunction)?
+function Net:CreateEvent(Name: string, IsUnreliable: boolean?): (RemoteEvent | UnreliableRemoteEvent)?
 	if self._Pool[Name] then
 		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
 	end
 
+	local Class = IsUnreliable and "UnreliableRemoteEvent" or "RemoteEvent"
+
 	local Remote = Instance.new(Class)
+	Remote.Name = Name
+	Remote.Parent = script
+
+	self._Pool[Name] = Remote
+	return self._Pool[Name]
+end
+
+--[=[
+	@within NetTrait
+	@method CreateFunction
+	@param Name string
+
+	Appends a RemoteFunction with the given name to the net pool.
+
+	@return RemoteFunction?
+]=]
+function Net:CreateFunction(Name: string?): RemoteFunction?
+	if self._Pool[Name] then
+		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
+		return
+	end
+
+	local Remote = Instance.new("RemoteFunction")
 	Remote.Name = Name
 	Remote.Parent = script
 
@@ -387,8 +412,10 @@ end
 	@method Invoke
 	@param Name string
 	@param ... any
+
+	@return any
 ]=]
-function Net:Invoke(Name: string, ...)
+function Net:Invoke(Name: string, ...: any): any
 	local Remote: RemoteFunction = self._Pool[Name]
 
 	if not Remote then
