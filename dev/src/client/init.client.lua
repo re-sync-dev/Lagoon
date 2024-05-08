@@ -21,5 +21,5 @@ end)
 MyController:Fire("Thing1", {
 	Thing = 1,
 	You = false,
-	Your = "not real."
+	Your = "not real.",
 })
