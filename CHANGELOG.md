@@ -1,3 +1,9 @@
+## 1.1.0
+- Added server-side Networking middleware
+	- Added compatibility for requests that are serialized
+- Added static types for generics Array and Dictionary
+- Separated type file and multiple different files for workspace cleanliness
+
 ## 1.0.7
 - Separated `Net:CreateRemote` into `Net:CreateEvent` and `Net:CreateFunction`
 - Added lazy loading for built-in traits to reduce bloating

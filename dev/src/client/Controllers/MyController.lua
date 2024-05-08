@@ -2,7 +2,7 @@
 	
 	Copyright (C) Re-Sync - All Rights Reserved
 	
-	[MyService.lua]:
+	[MyController.lua]:
 	Dummy service for testing purposes
 	
 	[Author(s)]:
@@ -17,10 +17,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 
 -- Main Module:
-local MyService = {}
+local MyController = {}
 
-function MyService:Print()
+function MyController:Print()
 	print("Hello World!")
 end
 
-return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net)
+return Lagoon.MakeService(MyController):ApplyTrait(Lagoon.Traits.Net)

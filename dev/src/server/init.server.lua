@@ -9,4 +9,17 @@
 	Vyon - https://github.com/Vyon
 	
 --]==]
-require(script.Services.MyService)
+local MyService = require(script.Services.MyService)
+
+MyService:CreateEvent("Thing1", {
+	Inbound = function(...)
+		print(`Inbound:`, ...)
+	end,
+	Outbound = function(...)
+		print(`Outbound:`, ...)
+	end,
+}):SetAttribute("ShouldSerialize", true)
+
+MyService:Connect("Thing1", function(Data)
+	print("Message received.", Data)
+end)

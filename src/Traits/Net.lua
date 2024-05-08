@@ -24,13 +24,20 @@ local Types = require(ProjectRoot.Types)
 local Trait = require(script.Parent.Base)
 
 -- Types:
--- Private:
+-- Generic:
+type Dictionary<T> = Types.Dictionary<T>
+
 type Signal = Types.Signal<...any>
 type Connection = Types.Connection
+
+-- Private:
+type MiddlewareEntry = Types.MiddlewareEntry
 
 -- Constants:
 local IS_SERVER = RunService:IsServer()
 local DEFAULT_TIMEOUT = 5
+
+local DEAD_FUNCTION = function() end
 
 local SERIALIZER_ENUMS = {
 	Instance = 0,
@@ -54,6 +61,8 @@ local JSON = {
 	end,
 }
 
+local ToString = string.char
+
 -- Functions:
 local function CreatePool()
 	local Pool = {}
@@ -63,10 +72,6 @@ local function CreatePool()
 	end
 
 	return Pool
-end
-
-local function ToString(Byte: number)
-	return string.char(Byte)
 end
 
 local function GetNameFromEnum(Enum: number): string?
@@ -79,6 +84,21 @@ local function GetNameFromEnum(Enum: number): string?
 	end
 
 	return nil
+end
+
+local function Merge<A, B>(To: A, From: B): A & B
+	local A: any = To
+	local B: any = From
+
+	for Key, Value in B do
+		if A[Key] then
+			continue
+		end
+
+		A[Key] = Value
+	end
+
+	return To :: A & B
 end
 
 local function SerializePacket(...): { string | Instance }
@@ -160,11 +180,22 @@ Net.Name = "Net"
 
 --[=[
 	@within NetTrait
-	@prop _Pool { RemoteEvent | RemoteFunction | Signal }
+	@prop _Pool Dictionary<RemoteEvent | RemoteFunction | Signal>
 	@readonly
 	@private
 ]=]
 Net._Pool = CreatePool()
+
+--[=[
+
+	@within NetTrait
+	@prop _Middleware Dictionary<MiddlewareEntry>
+
+	@readonly
+	@private
+
+]=]
+Net._Middleware = {}
 
 --[=[
 	@within NetTrait
@@ -235,13 +266,18 @@ end
 
 	@return Signal?
 ]=]
-function Net:CreateSignal(Name: string): Signal?
+function Net:CreateSignal(Name: string, Middleware: MiddlewareEntry?): Signal?
 	if self._Pool[Name] then
 		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
 	end
 
 	self._Pool[Name] = Signal.new()
+	self._Middleware[Name] = Merge(Middleware, {
+		Inbound = DEAD_FUNCTION,
+		Outbound = DEAD_FUNCTION,
+	})
+
 	return self._Pool[Name]
 end
 
@@ -255,7 +291,11 @@ end
 
 	@return (RemoteEvent | UnreliableRemoteEvent)?
 ]=]
-function Net:CreateEvent(Name: string, IsUnreliable: boolean?): (RemoteEvent | UnreliableRemoteEvent)?
+function Net:CreateEvent(
+	Name: string,
+	Middleware: MiddlewareEntry?,
+	IsUnreliable: boolean?
+): (RemoteEvent | UnreliableRemoteEvent)?
 	if self._Pool[Name] then
 		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
@@ -268,6 +308,11 @@ function Net:CreateEvent(Name: string, IsUnreliable: boolean?): (RemoteEvent | U
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
+	self._Middleware[Name] = Merge(Middleware, {
+		Inbound = DEAD_FUNCTION,
+		Outbound = DEAD_FUNCTION,
+	})
+
 	return self._Pool[Name]
 end
 
@@ -280,7 +325,7 @@ end
 
 	@return RemoteFunction?
 ]=]
-function Net:CreateFunction(Name: string?): RemoteFunction?
+function Net:CreateFunction(Name: string?, Middleware: MiddlewareEntry?): RemoteFunction?
 	if self._Pool[Name] then
 		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
 		return
@@ -291,6 +336,11 @@ function Net:CreateFunction(Name: string?): RemoteFunction?
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
+	self._Middleware[Name] = Merge(Middleware, {
+		Inbound = DEAD_FUNCTION,
+		Outbound = DEAD_FUNCTION,
+	})
+
 	return self._Pool[Name]
 end
 
@@ -315,6 +365,9 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 		return
 	end
 
+	local Middleware = self._Middleware[Name]
+	local Inbound = Middleware and Middleware.Inbound
+
 	if typeof(Item) == "Instance" and Item:IsA("RemoteEvent") then
 		local Method = IS_SERVER and "OnServerEvent" or "OnClientEvent"
 
@@ -326,17 +379,27 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 			local Player = IS_SERVER and table.remove(Args, 1) or nil
 
 			if ShouldSerialize then
-				Args = self.DeserializePacket(unpack(Args))
+				Args = self.DeserializePacket(table.unpack(Args))
+			end
+
+			if IS_SERVER then
+				task.defer(Inbound, Player, table.unpack(Args))
 			end
 
 			if Player then
-				Callback(Player, unpack(Args))
+				Callback(Player, table.unpack(Args))
 			else
-				Callback(unpack(Args))
+				Callback(table.unpack(Args))
 			end
 		end)
 	else
-		return Item:Connect(Callback)
+		return Item:Connect(function(...)
+			if IS_SERVER then
+				task.defer(Inbound, ...)
+			end
+
+			Callback(...)
+		end)
 	end
 end
 
@@ -359,15 +422,26 @@ function Net:Bind(Name: string, Callback: (...any) -> ())
 	local Method = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
 	local ShouldSerialize = Remote:GetAttribute("ShouldSerialize") or false
 
+	local Middleware = self._Middleware[Name]
+	local Inbound = Middleware and Middleware.Inbound
+
 	Remote[Method] = function(...)
 		local Args = { ... }
 		local Player = IS_SERVER and table.remove(Args, 1)
 
 		if ShouldSerialize then
-			Args = self.DeserializePacket(unpack(Args))
+			Args = self.DeserializePacket(table.unpack(Args))
 		end
 
-		return Callback(Player, unpack(Args))
+		if IS_SERVER then
+			task.defer(Inbound, table.unpack(Args))
+		end
+
+		if Player then
+			return Callback(Player, table.unpack(Args))
+		else
+			return Callback(table.unpack(Args))
+		end
 	end
 end
 
@@ -387,6 +461,13 @@ function Net:Fire(Name: string, ...)
 	elseif typeof(Item) == "Instance" and not Item:IsA("RemoteEvent") then
 		error(`[Net]: Remote '{Name}' doesn't exist.`)
 		return
+	end
+
+	if IS_SERVER then
+		local Middleware = self._Middleware[Name]
+		local Outbound = Middleware.Outbound
+
+		task.defer(Outbound, ...)
 	end
 
 	if typeof(Item) == "Instance" and Item:IsA("RemoteEvent") then
@@ -428,6 +509,12 @@ function Net:Invoke(Name: string, ...: any): any
 	local Func = Remote[Method] :: (...any) -> ()
 
 	local ShouldSerialize = Remote:GetAttribute("ShouldSerialize") or false
+
+	if IS_SERVER then
+		local OutboundMiddleware = self._Middleware[Name].Outbound
+
+		task.defer(OutboundMiddleware, ...)
+	end
 
 	if ShouldSerialize then
 		return Func(Remote, self.SerializePacket(...))

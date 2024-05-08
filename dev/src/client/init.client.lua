@@ -9,3 +9,17 @@
 		Vyon - https://github.com/Vyon
 
 --]==]
+
+local MyController = require(script.Controllers.MyController)
+
+MyController:Connect("Thing1", function(Response: string)
+	print(Response)
+
+	return
+end)
+
+MyController:Fire("Thing1", {
+	Thing = 1,
+	You = false,
+	Your = "not real."
+})
