@@ -273,7 +273,7 @@ function Net:CreateSignal(Name: string, Middleware: MiddlewareEntry?): Signal?
 	end
 
 	self._Pool[Name] = Signal.new()
-	self._Middleware[Name] = Merge(Middleware, {
+	self._Middleware[Name] = Merge(Middleware or {}, {
 		Inbound = DEAD_FUNCTION,
 		Outbound = DEAD_FUNCTION,
 	})
@@ -308,7 +308,7 @@ function Net:CreateEvent(
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
-	self._Middleware[Name] = Merge(Middleware, {
+	self._Middleware[Name] = Merge(Middleware or {}, {
 		Inbound = DEAD_FUNCTION,
 		Outbound = DEAD_FUNCTION,
 	})
@@ -336,7 +336,7 @@ function Net:CreateFunction(Name: string?, Middleware: MiddlewareEntry?): Remote
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
-	self._Middleware[Name] = Merge(Middleware, {
+	self._Middleware[Name] = Merge(Middleware or {}, {
 		Inbound = DEAD_FUNCTION,
 		Outbound = DEAD_FUNCTION,
 	})
