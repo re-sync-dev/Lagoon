@@ -238,7 +238,7 @@ Net.DeserializePacket = DeserializePacket
 
 	Yields the current thread until there is an Item with the provided name or the timeout is reached.
 
-	@return (RemoteEvent | RemoteFunction | Signal)?
+	@return (RemoteEvent | UnreliableRemoteEvent | RemoteFunction | Signal)?
 ]=]
 function Net:WaitFor(Name: string, Timeout: number?): (RemoteEvent | RemoteFunction | Signal)?
 	local Item = self._Pool[Name]
@@ -360,7 +360,7 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 	if not Item then
 		error(`[Net]: Signal '{Name}' doesn't exist.`)
 		return
-	elseif typeof(Item) == "Instance" and not Item:IsA("RemoteEvent") then
+	elseif typeof(Item) == "Instance" and not Item:IsA("BaseRemoteEvent") then
 		error(`[Net]: RemoteEvent '{Name}' doesn't exist.`)
 		return
 	end
@@ -368,7 +368,7 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 	local Middleware = self._Middleware[Name]
 	local Inbound = Middleware and Middleware.Inbound
 
-	if typeof(Item) == "Instance" and Item:IsA("RemoteEvent") then
+	if typeof(Item) == "Instance" and Item:IsA("BaseRemoteEvent") then
 		local Method = IS_SERVER and "OnServerEvent" or "OnClientEvent"
 
 		local Signal = Item[Method] :: RBXScriptSignal
@@ -458,7 +458,7 @@ function Net:Fire(Name: string, ...)
 	if not Item then
 		error(`[Net]: Signal '{Name}' doesn't exist.`)
 		return
-	elseif typeof(Item) == "Instance" and not Item:IsA("RemoteEvent") then
+	elseif typeof(Item) == "Instance" and not Item:IsA("BaseRemoteEvent") then
 		error(`[Net]: Remote '{Name}' doesn't exist.`)
 		return
 	end
@@ -470,7 +470,7 @@ function Net:Fire(Name: string, ...)
 		task.defer(Outbound, ...)
 	end
 
-	if typeof(Item) == "Instance" and Item:IsA("RemoteEvent") then
+	if typeof(Item) == "Instance" and Item:IsA("BaseRemoteEvent") then
 		local IsTargeted: boolean = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
 		local Method = IS_SERVER and (IsTargeted and "FireClient" or "FireAllClients") or "FireServer"
 
