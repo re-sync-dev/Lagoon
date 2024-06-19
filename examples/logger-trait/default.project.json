@@ -4,10 +4,7 @@
 		"$className": "DataModel",
 		"ReplicatedStorage": {
 			"Packages": {
-				"$path": "../../Packages",
-				"Lagoon": {
-					"$path": "../../default.project.json"
-				}
+				"$path": "Packages"
 			}
 		},
 		"ServerScriptService": {
