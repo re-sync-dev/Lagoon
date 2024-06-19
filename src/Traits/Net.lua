@@ -388,12 +388,18 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 				table.insert(Args, 1, Player)
 			end
 
-			Inbound(table.unpack(Args))
+			if Inbound then
+				Inbound(table.unpack(Args))
+			end
+
 			Callback(table.unpack(Args))
 		end)
 	else
 		return Item:Connect(function(...)
-			Inbound(...)
+			if Inbound then
+				Inbound(...)
+			end
+
 			Callback(...)
 		end)
 	end
@@ -457,9 +463,11 @@ function Net:Fire(Name: string, ...)
 	end
 
 	local Middleware = self._Middleware[Name]
-	local Outbound = Middleware.Outbound
+	local Outbound = Middleware and Middleware.Outbound
 
-	Outbound(...)
+	if Outbound then
+		Outbound(...)
+	end
 
 	if typeof(Item) == "Instance" and Item:IsA("BaseRemoteEvent") then
 		local IsTargeted: boolean = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
@@ -501,9 +509,12 @@ function Net:Invoke(Name: string, ...: any): any
 
 	local ShouldSerialize = Remote:GetAttribute("ShouldSerialize") or false
 
-	local Outbound = self._Middleware[Name].Outbound
+	local Middleware = self._Middleware[Name]
+	local Outbound = Middleware and Middleware.Outbound
 
-	Outbound(...)
+	if Outbound then
+		Outbound(...)
+	end
 
 	if ShouldSerialize then
 		return Func(Remote, self.SerializePacket(...))
