@@ -31,6 +31,14 @@ type Signal = Types.Signal<...any>
 type Connection = Types.Connection
 
 -- Private:
+--[=[
+
+	@within NetTrait
+	@interface MiddlewareEntry
+	.Inbound (...any) -> (),
+	.Outbound (...any) -> (),
+
+]=]
 type MiddlewareEntry = Types.MiddlewareEntry
 
 -- Constants:
@@ -173,13 +181,6 @@ local Net = {}
 
 --[=[
 	@within NetTrait
-	@prop Name string
-	@readonly
-]=]
-Net.Name = "Net"
-
---[=[
-	@within NetTrait
 	@prop _Pool Dictionary<RemoteEvent | RemoteFunction | Signal>
 	@readonly
 	@private
@@ -212,7 +213,7 @@ Net._Middleware = {}
 
 	**Table:** `<section_type><encoded_table>` - The table is encoded using Roblox's JSON functions (This might be changed in the future to use a type of lossless compression to save on bandwidth)
 
-	From some basic tests that were run using a packet that was sending an instance reference and a bunch of relevant color information & CFrames around ~1.1KB in bandwidth was saved.
+	From some basic tests that were run using a packet that was sending an instance reference and a bunch of relevant color information & CFrames saved around ~1.1KB in bandwidth.
 
 	@return { [1]: string, ...: Instance }
 ]=]
@@ -267,16 +268,16 @@ end
 	@return Signal?
 ]=]
 function Net:CreateSignal(Name: string, Middleware: MiddlewareEntry?): Signal?
-	if self._Pool[Name] then
-		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
-		return
-	end
-
-	self._Pool[Name] = Signal.new()
 	self._Middleware[Name] = Merge(Middleware or {}, {
 		Inbound = DEAD_FUNCTION,
 		Outbound = DEAD_FUNCTION,
 	})
+
+	if self._Pool[Name] then
+		return self._Pool[Name]
+	end
+
+	self._Pool[Name] = Signal.new()
 
 	return self._Pool[Name]
 end
@@ -296,9 +297,14 @@ function Net:CreateEvent(
 	Middleware: MiddlewareEntry?,
 	IsUnreliable: boolean?
 ): (RemoteEvent | UnreliableRemoteEvent)?
+	self._Middleware[Name] = Merge(Middleware or {}, {
+		Inbound = DEAD_FUNCTION,
+		Outbound = DEAD_FUNCTION,
+	})
+
 	if self._Pool[Name] then
-		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
-		return
+		self:WaitFor(Name)
+		return self._Pool[Name]
 	end
 
 	local Class = IsUnreliable and "UnreliableRemoteEvent" or "RemoteEvent"
@@ -308,10 +314,6 @@ function Net:CreateEvent(
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
-	self._Middleware[Name] = Merge(Middleware or {}, {
-		Inbound = DEAD_FUNCTION,
-		Outbound = DEAD_FUNCTION,
-	})
 
 	return self._Pool[Name]
 end
@@ -326,9 +328,13 @@ end
 	@return RemoteFunction?
 ]=]
 function Net:CreateFunction(Name: string?, Middleware: MiddlewareEntry?): RemoteFunction?
+	self._Middleware[Name] = Merge(Middleware or {}, {
+		Inbound = DEAD_FUNCTION,
+		Outbound = DEAD_FUNCTION,
+	})
+
 	if self._Pool[Name] then
-		error(`[Net]: Cannot create signal '{Name}' due to entry already existing.`)
-		return
+		return self._Pool[Name]
 	end
 
 	local Remote = Instance.new("RemoteFunction")
@@ -336,10 +342,6 @@ function Net:CreateFunction(Name: string?, Middleware: MiddlewareEntry?): Remote
 	Remote.Parent = script
 
 	self._Pool[Name] = Remote
-	self._Middleware[Name] = Merge(Middleware or {}, {
-		Inbound = DEAD_FUNCTION,
-		Outbound = DEAD_FUNCTION,
-	})
 
 	return self._Pool[Name]
 end
@@ -382,22 +384,16 @@ function Net:Connect(Name: string, Callback: (...any) -> ()): (RBXScriptConnecti
 				Args = self.DeserializePacket(table.unpack(Args))
 			end
 
-			if IS_SERVER then
-				task.defer(Inbound, Player, table.unpack(Args))
+			if Player then
+				table.insert(Args, 1, Player)
 			end
 
-			if Player then
-				Callback(Player, table.unpack(Args))
-			else
-				Callback(table.unpack(Args))
-			end
+			Inbound(table.unpack(Args))
+			Callback(table.unpack(Args))
 		end)
 	else
 		return Item:Connect(function(...)
-			if IS_SERVER then
-				task.defer(Inbound, ...)
-			end
-
+			Inbound(...)
 			Callback(...)
 		end)
 	end
@@ -433,15 +429,12 @@ function Net:Bind(Name: string, Callback: (...any) -> ())
 			Args = self.DeserializePacket(table.unpack(Args))
 		end
 
-		if IS_SERVER then
-			task.defer(Inbound, table.unpack(Args))
+		if Player then
+			table.insert(Args, 1, Player)
 		end
 
-		if Player then
-			return Callback(Player, table.unpack(Args))
-		else
-			return Callback(table.unpack(Args))
-		end
+		Inbound(table.unpack(Args))
+		return Callback(table.unpack(Args))
 	end
 end
 
@@ -463,12 +456,10 @@ function Net:Fire(Name: string, ...)
 		return
 	end
 
-	if IS_SERVER then
-		local Middleware = self._Middleware[Name]
-		local Outbound = Middleware.Outbound
+	local Middleware = self._Middleware[Name]
+	local Outbound = Middleware.Outbound
 
-		task.defer(Outbound, ...)
-	end
+	Outbound(...)
 
 	if typeof(Item) == "Instance" and Item:IsA("RemoteEvent") then
 		local IsTargeted: boolean = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
@@ -510,11 +501,9 @@ function Net:Invoke(Name: string, ...: any): any
 
 	local ShouldSerialize = Remote:GetAttribute("ShouldSerialize") or false
 
-	if IS_SERVER then
-		local OutboundMiddleware = self._Middleware[Name].Outbound
+	local Outbound = self._Middleware[Name].Outbound
 
-		task.defer(OutboundMiddleware, ...)
-	end
+	Outbound(...)
 
 	if ShouldSerialize then
 		return Func(Remote, self.SerializePacket(...))

@@ -15,6 +15,27 @@ local Controller = require(script.Controller)
 local Service = require(script.Service)
 local Trait = require(script.Traits.Base)
 
+-- Variables:
+local Modules = {}
+
+-- Functions:
+--[=[
+
+	@within Lagoon
+	@function CollectName
+	@ignore
+
+	Uses 'getfenv' to get the name of then script that called the function
+
+	@return string
+]=]
+local function CollectName(): string
+	local GetFenv = getfenv
+	local Env = GetFenv(0)
+
+	return Env.script.Name
+end
+
 -- Main Module:
 --[=[
 	@class Lagoon
@@ -46,7 +67,12 @@ Lagoon.Traits = require(script.Traits)
 	```
 ]=]
 function Lagoon.MakeService<T>(Module: T)
-	return Service.new(Module)
+	local Name = CollectName()
+	local NewService = Service.new(Module)
+
+	Modules[Name] = NewService
+
+	return NewService
 end
 
 --[=[
@@ -72,7 +98,12 @@ end
 	```
 ]=]
 function Lagoon.MakeController<T>(Module: T)
-	return Controller.new(Module)
+	local Name = CollectName()
+	local NewController = Controller.new(Module)
+
+	Modules[Name] = NewController
+
+	return NewController
 end
 
 --[=[
@@ -116,6 +147,55 @@ end
 ]=]
 function Lagoon.MakeTrait<T>(Module: T)
 	return Trait.new(Module)
+end
+
+--[=[
+
+	@within Lagoon
+	@function Load
+	@param Parent Instance
+
+	Requires and initializes the Parent's children.
+
+]=]
+function Lagoon.Load(Parent: Instance)
+	debug.setmemorycategory("LagoonLoad")
+
+	for _, Child in Parent:GetChildren() do
+		if not Child:IsA("ModuleScript") then
+			continue
+		end
+
+		local Success, Result = pcall(require, Child)
+
+		if not Success then
+			warn(`[Lagoon.Load]: Failed to require {Child.Name}: {Result}`)
+			continue
+		end
+
+		if typeof(Result) == "table" and Result.Init then
+			task.defer(Result.Init, Result)
+		end
+	end
+
+	debug.resetmemorycategory()
+end
+
+--[=[
+
+	@within Lagoon
+	@function Get
+	@param Name string
+
+	:::warning
+	Function provides no typesafety.
+	:::
+
+	@return any
+
+]=]
+function Lagoon.Get(Name: string): any
+	return Modules[Name]
 end
 
 return Lagoon

@@ -18,9 +18,14 @@ local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 
 -- Main Module:
 local MyService = {}
+MyService.LogOptions = {
+	Name = "MyService",
+	Debug = true,
+	Timestamp = false,
+}
 
 function MyService:Print()
 	print("Hello World!")
 end
 
-return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net)
+return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net):ApplyTrait(Lagoon.Traits.Logger)

@@ -1,3 +1,16 @@
+## 1.2.0
+- Added `Logger` trait
+- Added static types for Logger Trait
+- Added functions [Lagoon.Get](/Lagoon/api/Lagoon#Get) & [Lagoon.Load](/Lagoon/api/Lagoon#Load)
+- Added file headers to files without them.
+- Added `logger-trait` example
+- Added `middleware` example
+- Fixed middleware being called on separate threads
+- Middleware is now set everytime `:CreateX` is called
+- Fixed middleware being boundary locked
+- Small code cleanup in the `Net` trait
+- Removed old `Net` property
+
 ## 1.1.0
 - Added server-side Networking middleware
 	- Added compatibility for requests that are serialized

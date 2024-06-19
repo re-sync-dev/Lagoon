@@ -16,9 +16,11 @@ local Types = require(script.Parent.Types)
 -- Types:
 -- Private:
 type Net = Types.Net
+type Logger = Types.Logger
 
 type Traits = {
 	Net: Net,
+	Logger: Logger,
 }
 
 -- Variables:
@@ -32,6 +34,7 @@ local Cache = {} :: Traits
 
 	**Built-in traits:**
 	- [Net](/api/NetTrait) is for networking either across the boundary or within it
+	- [Logger](/api/Logger) is used for logging information in a production or development environment.
 
 ]=]
 local Traits = setmetatable({}, {

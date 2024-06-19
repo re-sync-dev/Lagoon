@@ -1,0 +1,19 @@
+{
+	"name": "Lagoon Example-LoggerTrait",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"Packages": {
+				"$path": "../../Packages",
+				"Lagoon": {
+					"$path": "../../default.project.json"
+				}
+			}
+		},
+		"ServerScriptService": {
+			"Server": {
+				"$path": "src/server"
+			}
+		}
+	}
+}

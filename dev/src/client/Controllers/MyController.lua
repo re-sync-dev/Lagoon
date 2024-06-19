@@ -23,4 +23,4 @@ function MyController:Print()
 	print("Hello World!")
 end
 
-return Lagoon.MakeService(MyController):ApplyTrait(Lagoon.Traits.Net)
+return Lagoon.MakeController(MyController):ApplyTrait(Lagoon.Traits.Net)

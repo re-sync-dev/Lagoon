@@ -9,17 +9,16 @@
 	Vyon - https://github.com/Vyon
 	
 --]==]
+
+-- Services:
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Modules:
 local MyService = require(script.Services.MyService)
+local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 
-MyService:CreateEvent("Thing1", {
-	Inbound = function(...)
-		print(`Inbound:`, ...)
-	end,
-	Outbound = function(...)
-		print(`Outbound:`, ...)
-	end,
-}):SetAttribute("ShouldSerialize", true)
+-- Init:
+Lagoon.Load(script.Services)
 
-MyService:Connect("Thing1", function(Data)
-	print("Message received.", Data)
-end)
+-- Main:
+MyService:Log("Debug/Info", "Hello, world!")

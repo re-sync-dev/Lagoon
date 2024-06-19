@@ -19,15 +19,9 @@ local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 -- Main Module:
 local MyService = {}
 
-function MyService:Init()
-	-- Remotes:
-	-- Functions:
-	self:CreateFunction("Ping")
+MyService.LogOptions = {
+	Name = "MyService",
+	Debug = true,
+}
 
-	-- Bindings:
-	self:Bind("Ping", function()
-		return "Pong"
-	end)
-end
-
-return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net) --> Using ':ApplyTrait' allows the service to implement the methods & properties of said trait.
+return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Logger) --> Using ':ApplyTrait' allows the service to implement the methods & properties of said trait.

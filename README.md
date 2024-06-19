@@ -4,7 +4,7 @@
 </div>
 
 # Lagoon
-Lagoon is a barebones typesafe framework that can be integrated anywhere with low requirements for integration. For example usages click [here](https://github.com/re-sync-dev/Lagoon/releases).
+Lagoon is a barebones typesafe framework that can be implemented anywhere with low requirements for integration. For example usages click [here](https://github.com/re-sync-dev/Lagoon/releases).
 
 ## Style Guide
 For further information about styling see [STYLING.md](STYLING.md).

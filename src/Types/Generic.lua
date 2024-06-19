@@ -1,3 +1,15 @@
+--[==[
+
+	Copyright (C) Re-Sync - All Rights Reserved
+
+	[Generic.lua]:
+		Generic / utility types
+
+	[Author(s)]:
+		Vyon - https://github.com/Vyon
+
+--]==]
+
 -- Types:
 -- Generic:
 export type Array<T> = { T }

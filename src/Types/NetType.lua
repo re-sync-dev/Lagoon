@@ -1,3 +1,15 @@
+--[==[
+
+	Copyright (C) Re-Sync - All Rights Reserved
+
+	[NetType.lua]:
+		Static types for the Net trait.
+
+	[Author(s)]:
+		Vyon - https://github.com/Vyon
+
+--]==]
+
 -- Modules:
 local Generic = require(script.Parent.Generic)
 
