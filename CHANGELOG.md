@@ -1,3 +1,11 @@
+## 1.3.0
+- Added [Trait:Apply](/Lagoon/api/Trait#Apply) so non services/controllers can inherit traits as well
+- Changed `Service:ApplyTrait` & `Controller:ApplyTrait` to use the newly added `Trait:Apply` method
+- Added static type for the `TraitBase`
+- Cleaned up the codebase a little bit (mostly making doc comments consistent)
+- Renamed all files ending in .lua -> .luau
+- Updated file headers to use .luau instead of .lua
+
 ## 1.2.0
 - Added `Logger` trait
 - Added static types for Logger Trait
