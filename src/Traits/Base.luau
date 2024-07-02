@@ -1,3 +1,4 @@
+local Types = require(script.Parent.Parent.Types)
 --[==[
 
 	Copyright (C) Re-Sync - All Rights Reserved
@@ -9,6 +10,10 @@
 		Vyon - https://github.com/Vyon
 
 --]==]
+
+-- Types:
+-- Private:
+type TraitBase = Types.TraitBase
 
 -- Main Module:
 --[=[
@@ -30,11 +35,17 @@ Trait.__index = Trait
 	@return T
 
 ]=]
-function Trait.new<T>(Module: T)
+function Trait.new<T>(Module: T): T & TraitBase
 	local UserData = newproxy(true)
-	getmetatable(UserData).__index = Module
+	getmetatable(UserData).__index = function(_, Key: string)
+		if Trait[Key] and not (Module :: any)[Key] then
+			return Trait[Key]
+		end
 
-	return UserData :: T
+		return (Module :: any)[Key]
+	end
+
+	return UserData :: T & TraitBase
 end
 
 --[=[
