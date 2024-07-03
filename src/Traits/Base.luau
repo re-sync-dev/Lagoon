@@ -1,4 +1,3 @@
-local Types = require(script.Parent.Parent.Types)
 --[==[
 
 	Copyright (C) Re-Sync - All Rights Reserved
@@ -10,6 +9,9 @@ local Types = require(script.Parent.Parent.Types)
 		Vyon - https://github.com/Vyon
 
 --]==]
+
+-- Modules:
+local Types = require(script.Parent.Parent.Types)
 
 -- Types:
 -- Private:
@@ -37,13 +39,16 @@ Trait.__index = Trait
 ]=]
 function Trait.new<T>(Module: T): T & TraitBase
 	local UserData = newproxy(true)
-	getmetatable(UserData).__index = function(_, Key: string)
-		if Trait[Key] and not (Module :: any)[Key] then
-			return Trait[Key]
-		end
 
-		return (Module :: any)[Key]
+	local Ref: any = Module
+
+	if not Ref.Apply then
+		-- If the trait wants to have a function that overrides a trait
+		-- function that is not our problem :shrug:
+		Ref.Apply = Trait.Apply
 	end
+
+	getmetatable(UserData).__index = Module
 
 	return UserData :: T & TraitBase
 end
