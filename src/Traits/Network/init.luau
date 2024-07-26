@@ -390,14 +390,12 @@ function Network:Once(Name: string, Callback: (...any) -> ())
 	local Connection: RBXScriptConnection?
 
 	Connection = Network:Connect(Name, function(...: any)
-		if not Connection then
-			return --> Not possible within the scope of this function
+		if Connection then
+			Connection:Disconnect()
+			Connection = nil
+
+			Callback(...)
 		end
-
-		Connection:Disconnect()
-		Connection = nil
-
-		Callback(...)
 	end)
 
 	return Connection
