@@ -72,7 +72,17 @@ end
 
 ]=]
 function Service.ApplyTrait<S, T>(self: S, Trait: T): S & T
-	return (Trait :: any):Apply(self)
+	local RetypedSelf: any = self
+
+	for Key, Value in getmetatable(Trait :: any).__index do
+		if RetypedSelf[Key] then
+			warn(`[{RetypedSelf.Name}]: Trait key '{Key}' overlapping with Service key.`)
+		end
+
+		RetypedSelf[Key] = Value
+	end
+
+	return RetypedSelf
 end
 
 return Service

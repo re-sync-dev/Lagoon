@@ -1,5 +1,5 @@
 {
-	"name": "Lagoon Example-LoggerTrait",
+	"name": "Lagoon Example-Logger",
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {

@@ -77,6 +77,10 @@ function Lagoon.MakeService<T>(Module: T)
 
 	Modules[Name] = NewService
 
+	if NewService.Name == nil then
+		NewService.Name = Name
+	end
+
 	return NewService
 end
 
@@ -109,6 +113,10 @@ function Lagoon.MakeController<T>(Module: T)
 	local NewController = Controller.new(Module)
 
 	Modules[Name] = NewController
+
+	if NewController.Name == nil then
+		NewController.Name = Name
+	end
 
 	return NewController
 end

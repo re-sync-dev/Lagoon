@@ -1,5 +1,6 @@
 # Ignore these directories
 Packages
+dev
 
 # Ignore build files
 /build/*

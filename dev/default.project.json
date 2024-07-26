@@ -26,6 +26,9 @@
 						"$path": "../Packages"
 					}
 				}
+			},
+			"Shared": {
+				"$path": "src/shared"
 			}
 		}
 	}

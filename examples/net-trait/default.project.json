@@ -1,5 +1,5 @@
 {
-	"name": "Lagoon Example-NetTrait",
+	"name": "Lagoon Example-Network",
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {

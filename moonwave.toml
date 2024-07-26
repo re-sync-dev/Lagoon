@@ -4,7 +4,6 @@ gitSourceBranch = "main"
 changelog = true
 
 [docusaurus]
-favicon = "/icon.png"
 onBrokenLinks = "ignore"
 onBrokenMarkdownLinks = "warn"
 
@@ -15,11 +14,7 @@ baseUrl = "/Lagoon"
 tagline = "The typesafe framework"
 
 [navbar]
-title = ""
-
-[navbar.logo]
-src = "/icon.png"
-alt = "Lagoon"
+title = "Lagoon"
 
 [home]
 enabled = true

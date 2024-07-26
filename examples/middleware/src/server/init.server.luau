@@ -3,7 +3,7 @@
 	Copyright (C) Re-Sync - All Rights Reserved
 
 	[init.server.luau]:
-		Server side of the 'net-trait' Lagoon example.
+		Server side of the 'middleware' Lagoon example.
 
 	[Author(s)]:
 		Vyon - https://github.com/Vyon

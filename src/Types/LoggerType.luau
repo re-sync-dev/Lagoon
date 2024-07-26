@@ -10,13 +10,7 @@
 
 --]==]
 
--- Modules:
-local TraitType = require(script.Parent.TraitType)
-
 -- Types:
--- Private:
-type TraitBase = TraitType.TraitBase
-
 -- Public:
 export type LogContext = "Debug" | "Info" | "Warn" | "Error" | "Fatal"
 export type LogOptions = {
@@ -29,6 +23,6 @@ export type Logger = {
 	LogOptions: LogOptions,
 
 	Log: <T>(self: T, Context: LogContext, ...any) -> (),
-} & TraitBase
+}
 
 return {}

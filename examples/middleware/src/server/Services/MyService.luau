@@ -23,7 +23,8 @@ local MyService = {}
 function MyService:Init()
 	-- Remotes:
 	-- Events:
-	Network:CreateEvent("Greet", {
+	Network:CreateEvent("Greet")
+	Network:AddMiddleware("Greet", {
 		-- If defined the inbound function will be called before any connections or
 		-- bindings receive the data.
 		Inbound = function(

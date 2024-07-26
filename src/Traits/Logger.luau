@@ -21,7 +21,7 @@ local Types = require(script.Parent.Parent.Types)
 -- Private:
 --[=[
 
-	@within LoggerTrait
+	@within Logger
 	@type LogContext "Debug" | "Info" | "Warn" | "Error" | "Fatal"
 
 ]=]
@@ -29,7 +29,7 @@ type LogContext = Types.LogContext
 
 --[=[
 
-	@within LoggerTrait
+	@within Logger
 	@interface LogOptions
 	.Name string?,
 	.Debug boolean?,
@@ -43,7 +43,6 @@ type Logger = Types.Logger
 local IS_DEVELOPMENT = RunService:IsStudio()
 
 local DEFAULT_OPTIONS = {
-	Name = "Logger",
 	Debug = IS_DEVELOPMENT,
 	Timestamp = false,
 }
@@ -51,7 +50,7 @@ local DEFAULT_OPTIONS = {
 -- Main Module:
 --[=[
 
-	@class LoggerTrait
+	@class Logger
 	Used for logging information in a production or development environment.
 
 	Inherits from [TraitBase](/api/TraitBase)
@@ -61,14 +60,14 @@ local Logger = {} :: Logger
 
 --[=[
 
-	@within LoggerTrait
+	@within Logger
 	@prop LogOptions LogOptions
 
 ]=]
 
 --[=[
 
-	@within LoggerTrait
+	@within Logger
 	@method Log
 	@param Context LogContext
 	@param ... any
@@ -80,8 +79,8 @@ local Logger = {} :: Logger
 	:::
 
 ]=]
-function Logger:Log(Context: LogContext, ...)
-	local LogOptions = self.LogOptions or DEFAULT_OPTIONS
+function Logger:Log(Context: LogContext, ...: any)
+	local LogOptions: LogOptions = self.LogOptions or DEFAULT_OPTIONS
 
 	if Context:sub(1, 5) == "Debug" then
 		if not LogOptions.Debug or not IS_DEVELOPMENT then
@@ -95,8 +94,10 @@ function Logger:Log(Context: LogContext, ...)
 
 	local Prefix = LogOptions.Timestamp and `[{os.date("%H:%M:%S")}] ` or ""
 
-	if LogOptions.Name and LogOptions.Name ~= "" then
-		Prefix ..= `[{LogOptions.Name}({Context:upper()})]`
+	local Name = LogOptions.Name or self.Name
+
+	if Name and Name ~= "" then
+		Prefix ..= `[{Name}({Context:upper()})]`
 	end
 
 	if Context == "Info" then

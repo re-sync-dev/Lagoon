@@ -10,13 +10,6 @@
 
 --]==]
 
--- Modules:
-local Types = require(script.Parent.Parent.Types)
-
--- Types:
--- Private:
-type TraitBase = Types.TraitBase
-
 -- Main Module:
 --[=[
 
@@ -37,40 +30,12 @@ Trait.__index = Trait
 	@return T
 
 ]=]
-function Trait.new<T>(Module: T): T & TraitBase
+function Trait.new<T>(Module: T): T
 	local UserData = newproxy(true)
-
-	local Ref: any = Module
-
-	if not Ref.Apply then
-		-- If the trait wants to have a function that overrides a trait
-		-- function that is not our problem :shrug:
-		Ref.Apply = Trait.Apply
-	end
 
 	getmetatable(UserData).__index = Module
 
-	return UserData :: T & TraitBase
-end
-
---[=[
-
-	@within TraitBase
-	@function Apply
-	@param self S
-	@param Module T
-	
-	Applies a traits method(s) and properties to the specified module.
-
-	@return S & T
-
-]=]
-function Trait.Apply<S, T>(self: S, Module: T): S & T
-	for Key, Value in getmetatable(self :: any).__index do
-		(Module :: any)[Key] = Value
-	end
-
-	return Module :: any
+	return UserData :: T
 end
 
 return Trait

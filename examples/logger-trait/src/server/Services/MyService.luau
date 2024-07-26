@@ -20,7 +20,6 @@ local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 local MyService = {}
 
 MyService.LogOptions = {
-	Name = "MyService",
 	Debug = true,
 }
 

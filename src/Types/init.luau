@@ -12,8 +12,7 @@
 
 -- Modules:
 local Generic = require(script.Generic)
-local NetType = require(script.NetType)
-local TraitType = require(script.TraitType)
+local NetworkType = require(script.NetworkType)
 local LoggerType = require(script.LoggerType)
 
 -- Types:
@@ -24,13 +23,12 @@ export type Dictionary<T> = Generic.Dictionary<T>
 export type Signal<T...> = Generic.Signal<T...>
 export type Connection = Generic.Connection
 
--- Traits:
---  Trait:
-export type TraitBase = TraitType.TraitBase
-
---	Net:
-export type Net = NetType.Net
-export type MiddlewareEntry = NetType.MiddlewareEntry
+--	Network:
+export type Network = NetworkType.Network
+export type MiddlewareEntry = NetworkType.MiddlewareEntry
+export type MiddlewareCallback = NetworkType.MiddlewareCallback
+export type Middleware = NetworkType.Middleware
+export type NetworkPoolItem<T> = NetworkType.NetworkPoolItem<T>
 
 --	Logger:
 export type LogContext = LoggerType.LogContext

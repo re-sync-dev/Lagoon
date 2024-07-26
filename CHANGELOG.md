@@ -1,3 +1,24 @@
+## 1.4.0
+- Removed Trait:Apply due to type clutter & general complexity concerns
+- `Service:ApplyTrait` & `Controller:ApplyTrait` no longer use Trait:Apply and have gone back to the original way traits were applied
+- Net & NetTrait renamed to Network
+- Split up the Network Serialization logic into a separate module.
+- Fixed issues with table serialization
+- Updated NetworkType to reflect the changes made to the trait.
+- Added the `:Once` method to the Network trait (Disconnects after one request has been received)
+- Added the `:AddMiddleware` method to the Network
+- Modified the Network's pool structure to use [Pool Items](/Lagoon/api/Network#NetworkPoolItem%3CT%3E)
+- Added `dev` folder to .gitignore
+- Added internal trait redirects for backwards compatibility for older traits (I.E. Net -> Network)
+- Services & Controllers now have their names automatically applied at construction
+- Logger now supports the automatic service and controller names (Setting the logging name using LogOptions still works.)
+- Added warning for Key overlapping upon trait application
+- Updated examples using the Network & Logger traits
+- Added [this page](/Lagoon/docs/limitations) dedicated to the limitations of Lagoon
+- Added additional info about minimally using Lagoon on the [intro page](/Lagoon/docs/intro#do-i-need-to-wrap-everything-in-the-lagoon-api)
+- Temporarily removed Lagoon icon
+- Updated aftman package versions
+
 ## 1.3.0
 - Added [Trait:Apply](/Lagoon/api/Trait#Apply) so non services/controllers can inherit traits as well
 - Changed `Service:ApplyTrait` & `Controller:ApplyTrait` to use the newly added `Trait:Apply` method

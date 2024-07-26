@@ -30,4 +30,4 @@ function MyService:Init()
 	end)
 end
 
-return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Net) --> Using ':ApplyTrait' allows the service to implement the methods & properties of said trait.
+return Lagoon.MakeService(MyService):ApplyTrait(Lagoon.Traits.Network) --> Using ':ApplyTrait' allows the service to implement the methods & properties of said trait.

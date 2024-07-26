@@ -3,7 +3,7 @@
 	Copyright (C) Re-Sync - All Rights Reserved
 
 	[Module.luau]:
-		An example of a module that use a Network that is not related to Lagoon
+		Exports the lagoon network trait for direct access.
 
 	[Author(s)]:
 		Vyon - https://github.com/Vyon

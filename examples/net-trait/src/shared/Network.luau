@@ -3,7 +3,7 @@
 	Copyright (C) Re-Sync - All Rights Reserved
 
 	[Network.luau]:
-		An example of how Lagoon built-in NetTrait can be created.
+		Exports the lagoon network trait for direct access.
 
 	[Author(s)]:
 		Vyon - https://github.com/Vyon
@@ -17,6 +17,4 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
 
 -- Main Module:
-local Net = Lagoon.Traits.Net
-
-return Net
+return Lagoon.Traits.Network

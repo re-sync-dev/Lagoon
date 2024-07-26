@@ -3,7 +3,7 @@
 	Copyright (C) Re-Sync - All Rights Reserved
 
 	[init.client.luau]:
-		Client side of the 'net-trait' Lagoon example.
+		Client side of the 'middleware' Lagoon example.
 
 	[Author(s)]:
 		Vyon - https://github.com/Vyon
