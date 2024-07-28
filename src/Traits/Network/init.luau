@@ -347,7 +347,8 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 	Item.Connection = Signal:Connect(function(...: any)
 		local Args = { ... }
 
-		local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
+		local ShouldSerialize = typeof(ItemRef) == "Instance" and (ItemRef:GetAttribute("Serialize") :: boolean)
+			or false
 
 		if ShouldSerialize then
 			local IsPlayer = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player")
@@ -467,6 +468,14 @@ function Network:Fire(Name: string, ...: any)
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
 		return
+	elseif typeof(Item.Ref) == "Instance" then
+		if not Item.Ref:IsA("BaseRemoteEvent") then
+			warn(`[Network]: {Name} is not a RemoteEvent`)
+			return
+		end
+	elseif typeof(Item.Ref) ~= "table" then
+		warn(`[Network]: {Name} is not a Signal`)
+		return
 	end
 
 	local Args = { ... }
@@ -476,13 +485,14 @@ function Network:Fire(Name: string, ...: any)
 	end
 
 	local ItemRef = Item.Ref
-	local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
-
-	if ShouldSerialize then
-		Args = { Serializer.Serialize(...) }
-	end
 
 	if typeof(ItemRef) == "Instance" and ItemRef:IsA("BaseRemoteEvent") then
+		local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
+
+		if ShouldSerialize then
+			Args = { Serializer.Serialize(...) }
+		end
+
 		local Method = ""
 
 		if IS_SERVER then
@@ -516,6 +526,9 @@ function Network:Invoke(Name: string, ...: any): any
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
+		return
+	elseif typeof(Item.Ref) ~= "Instance" or not Item.Ref:IsA("RemoteFunction") then
+		warn(`[Network]: {Name} is not a RemoteFunction`)
 		return
 	end
 
