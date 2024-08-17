@@ -1,3 +1,6 @@
+## 1.4.2
+- Fixed issue with `:Once` that would disconnect the main handler connection when a request was received.
+
 ## 1.4.0
 - Removed Trait:Apply due to type clutter & general complexity concerns
 - `Service:ApplyTrait` & `Controller:ApplyTrait` no longer use Trait:Apply and have gone back to the original way traits were applied

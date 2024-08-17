@@ -388,18 +388,48 @@ end
 
 ]=]
 function Network:Once(Name: string, Callback: (...any) -> ())
-	local Connection: RBXScriptConnection?
+	local Item: PoolItem<RemoteEvent | Signal> = self._Pool[Name]
 
-	Connection = Network:Connect(Name, function(...: any)
-		if Connection then
-			Connection:Disconnect()
-			Connection = nil
+	if not Item then
+		warn(`[Network]: Cannot find '{Name}'`)
+		return
+	end
 
-			Callback(...)
+	local Signal: Signal
+
+	local ItemRef = Item.Ref
+
+	if typeof(ItemRef) == "Instance" and ItemRef:IsA("BaseRemoteEvent") then
+		Signal = (ItemRef :: any)[IS_SERVER and "OnServerEvent" or "OnClientEvent"] --> Type assertion is free :100:
+	else
+		Signal = ItemRef
+	end
+
+	return Signal:Once(function(...)
+		local Args = { ... }
+
+		local ShouldSerialize = typeof(ItemRef) == "Instance" and (ItemRef:GetAttribute("Serialize") :: boolean)
+			or false
+
+		if ShouldSerialize then
+			local IsPlayer = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player")
+
+			if IsPlayer then
+				local Player = table.remove(Args, 1)
+
+				Args = Serializer.Deserialize(Args[1])
+				table.insert(Args, 1, Player)
+			else
+				Args = Serializer.Deserialize(Args[1])
+			end
 		end
-	end)
 
-	return Connection
+		if not ProcessMiddleware(Item.Middleware.Inbound, table.unpack(Args)) then
+			return
+		end
+
+		Callback(...)
+	end)
 end
 
 --[=[
