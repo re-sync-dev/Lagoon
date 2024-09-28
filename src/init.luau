@@ -175,7 +175,7 @@ end
 	Requires and initializes the Parent's children.
 
 ]=]
-function Lagoon.Load(List: {Instance})
+function Lagoon.Load(List: { Instance })
 	debug.setmemorycategory("LagoonLoad")
 
 	for _, Child in List do
