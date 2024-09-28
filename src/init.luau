@@ -11,9 +11,9 @@
 --]==]
 
 -- Modules:
-local Controller = require(script.Controller)
 local Service = require(script.Service)
 local Trait = require(script.Traits.Base)
+local Controller = require(script.Controller)
 
 -- Variables:
 local Modules = {}
@@ -170,15 +170,15 @@ end
 
 	@within Lagoon
 	@function Load
-	@param Parent Instance
+	@param List {Instance}
 
 	Requires and initializes the Parent's children.
 
 ]=]
-function Lagoon.Load(Parent: Instance)
+function Lagoon.Load(List: {Instance})
 	debug.setmemorycategory("LagoonLoad")
 
-	for _, Child in Parent:GetChildren() do
+	for _, Child in List do
 		if not Child:IsA("ModuleScript") then
 			continue
 		end

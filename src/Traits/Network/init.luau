@@ -92,15 +92,6 @@ local function CreatePoolItem<T>(Ref: T): PoolItem<T>
 end
 
 local function CreatePool()
-	if not Remotes then
-		local Ref = Instance.new("Folder")
-		Ref.Name = "Remotes"
-		Ref.Parent = ReplicatedStorage
-		Remotes = Ref
-
-		Ref = nil
-	end
-
 	local Pool = {}
 
 	for _, Child in Remotes:GetChildren() do
@@ -141,7 +132,6 @@ local Network = {} :: Network
 	@private
 
 ]=]
-Network._Pool = CreatePool()
 
 --[=[
 
@@ -579,5 +569,26 @@ function Network:Invoke(Name: string, ...: any): any
 
 	return ItemRef[InvokeMethod](ItemRef, table.unpack(Args))
 end
+
+-- Init:
+if not Remotes then
+	local Ref = Instance.new("Folder")
+	Ref.Name = "Remotes"
+	Ref.Parent = ReplicatedStorage
+	Remotes = Ref
+
+	Ref = nil
+end
+
+Network._Pool = CreatePool()
+
+-- Connections:
+Remotes.ChildAdded:Connect(function(Child: Instance)
+	if not Child:IsA("RemoteEvent") and not Child:IsA("UnreliableRemoteEvent") and not Child:IsA("RemoteFunction") then
+		return
+	end
+
+	Network._Pool[Child.Name] = CreatePoolItem(Child)
+end)
 
 return Trait.new(Network)

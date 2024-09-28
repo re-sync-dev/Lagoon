@@ -19,14 +19,8 @@ type Network = Types.Network
 type Logger = Types.Logger
 
 type Traits = {
-	Net: Network, --> Backwards compatibility
 	Network: Network,
 	Logger: Logger,
-}
-
--- Constants:
-local REDIRECTS = {
-	Net = "Network",
 }
 
 -- Variables:
@@ -46,10 +40,6 @@ local Cache = {} :: Traits
 ]=]
 local Traits = setmetatable({}, {
 	__index = function(self: Traits, Key: string)
-		if REDIRECTS[Key] then --> Used for backwards compatibility
-			Key = REDIRECTS[Key]
-		end
-
 		if not Cache[Key] then
 			local TraitModule = script:FindFirstChild(Key)
 

@@ -32,7 +32,7 @@ end
 return Module
 
 -- init.server.luau:
-Lagoon.Load(script.Modules)
+Lagoon.Load(script.Modules:GetChildren())
 ```
 
 :::info

@@ -1,3 +1,9 @@
+## 1.4.3
+- RemoteEvents and RemoteFunction can now be added to the pool even after runtime (old behavior required you to use `:WaitFor` in order to add the Event/Function to the pool)
+- Switched to [rokit](https://github.com/rojo-rbx/rokit)
+- Removed 'Net' compatibility redirect
+- `Lagoon.Load` now accepts an array of modules rather than just the parent script (type is Array<Instance> because Roblox can be funky about certain type conversions)
+
 ## 1.4.2
 - Fixed issue with `:Once` that would disconnect the main handler connection when a request was received.
 
