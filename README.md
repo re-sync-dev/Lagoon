@@ -5,7 +5,7 @@ Lagoon is a barebones typesafe framework that can be implemented anywhere with l
 For further information about styling see [STYLING.md](STYLING.md).
 
 ### Documentation
-More information about how to document your code can be found [here](DOCUMENTATION.md)
+More information about how to document your code can be found [here](https://re-sync-dev.github.io/Lagoon/docs/intro)
 
 ## Licensing
 See [LICENSE](LICENSE) for more information.
