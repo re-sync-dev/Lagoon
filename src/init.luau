@@ -170,15 +170,23 @@ end
 
 	@within Lagoon
 	@function Load
-	@param List {Instance}
+	@param List Instance | {Instance}
 
 	Requires and initializes the Parent's children.
 
 ]=]
-function Lagoon.Load(List: { Instance })
-	debug.setmemorycategory("LagoonLoad")
+function Lagoon.Load(List: Instance | { Instance })
+	local Modules: { Instance }
 
-	for _, Child in List do
+	if typeof(List) == "Instance" then
+		Modules = List:GetChildren()
+	else
+		Modules = List
+	end
+
+	debug.setmemorycategory(`Lagoon.Load`)
+
+	for _, Child in Modules do
 		if not Child:IsA("ModuleScript") then
 			continue
 		end

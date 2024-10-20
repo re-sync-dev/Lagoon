@@ -102,8 +102,11 @@ local function CreatePool()
 end
 
 local function ProcessMiddleware(MiddlewareHandlers: Array<MiddlewareCallback>, ...: any)
+	local Args = {...}
+	local IsPlayer: boolean = IS_SERVER and typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
+
 	for _, Handler in MiddlewareHandlers do
-		local ShouldCancel = Handler(...)
+		local ShouldCancel = IsPlayer and Handler(Args[1], table.unpack(Args, 2)) or Handler(...)
 
 		if ShouldCancel == true then
 			return
@@ -353,7 +356,7 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 			end
 		end
 
-		if not ProcessMiddleware(Item.Middleware.Inbound, table.unpack(Args)) then
+		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
 			return
 		end
 
@@ -414,11 +417,11 @@ function Network:Once(Name: string, Callback: (...any) -> ())
 			end
 		end
 
-		if not ProcessMiddleware(Item.Middleware.Inbound, table.unpack(Args)) then
+		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
 			return
 		end
 
-		Callback(...)
+		Callback(table.unpack(Args))
 	end)
 end
 
@@ -466,11 +469,17 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 			end
 		end
 
-		if not ProcessMiddleware(Item.Middleware.Inbound, table.unpack(Args)) then
+		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
 			return
 		end
 
-		return Callback(table.unpack(Args))
+		local Result = { Callback(table.unpack(Args)) }
+
+		if not ProcessMiddleware(Item.Middleware.Outbound, Result) then
+			return
+		end
+
+		return table.unpack(Result)
 	end
 end
 
@@ -500,7 +509,7 @@ function Network:Fire(Name: string, ...: any)
 
 	local Args = { ... }
 
-	if not ProcessMiddleware(Item.Middleware.Outbound, table.unpack(Args)) then
+	if not ProcessMiddleware(Item.Middleware.Outbound, Args) then
 		return
 	end
 
@@ -554,7 +563,7 @@ function Network:Invoke(Name: string, ...: any): any
 
 	local Args = { ... }
 
-	if not ProcessMiddleware(Item.Middleware.Outbound, table.unpack(Args)) then
+	if not ProcessMiddleware(Item.Middleware.Outbound, Args) then
 		return
 	end
 

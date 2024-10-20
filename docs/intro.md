@@ -3,20 +3,23 @@ sidebar_position: 1
 ---
 
 # About
-Lagoon is a barebones typesafe framework that can be integrated anywhere with low requirements for integration. For example usages click [here](https://github.com/re-sync-dev/Lagoon/releases).
+Lagoon is a barebones framework that can be added anywhere with low requirements for integration. Usage examples can be found [here](https://github.com/re-sync-dev/Lagoon/releases).
 
-## How does it compare to other frameworks?
-Lagoon itself can be used as a framework to support a game's infrastructure, but unlike frameworks such as [Knit](https://github.com/Sleitnick/Knit) that require integration into the entire game, Lagoon does not require complete game integration and at most requires integration into the module you use to define a Service or Controller.
+## Why Lagoon?
+### Simplicity
+Lagoon is only as complex as you make it, due to it's barebones nature the complexity of the framework scales with your code!
 
-## Services v Controllers
-### Services
-Services are modules that can only be used on the Server and on the client.
+### Non Intrusive
+Lagoon by design does not require complete integration into your project, and will function without using all the features.
 
-### Controllers
-Controllers differ from Services because they can only be used on the client
+### Extensible
+Even with the few things Lagoon does provide, Lagoon makes it a point to give developers as much freedom over their systems as possible.
+
+## What are Services / Controllers?
+In the context of Lagoon they are just modules that run in the context of the server or client. Services are modules ran on the server and Controllers are modules ran on the client.
 
 ## Do I Need to wrap everything in the Lagoon API???
-Put simply no, if you have a module that will not need access to traits you can declare the module the same as if you weren't using Lagoon at all.
+Put simply no, if you have a module that does not need to directly access the lagoon framework you can declare the module the same as if you weren't using Lagoon at all.
 
 If you still want to have the benefit of runtime initialization you can just add an `Init` method to the module and `Lagoon.Load` will treat it the same.
 
@@ -32,12 +35,12 @@ end
 return Module
 
 -- init.server.luau:
-Lagoon.Load(script.Modules:GetChildren())
+Lagoon.Load(script.Modules)
 ```
 
 :::info
-The best time to use a trait is when you need to have methods or properties accessible to both the server and client.
+The best time to use a trait is when you need to have methods, properties or a behavior accessible in multiple locations.
 :::
 
-## What are traits?
-Traits are simply put, modules that services and controllers can inherit methods and properties from.
+## Where can I learn about traits?
+A brief explanation can be found [here](/Lagoon/docs/getting-started#understanding-traits)

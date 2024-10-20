@@ -14,6 +14,7 @@
 --[=[
 
 	@class TraitBase
+	@ignore
 	Base class for traits.
 
 ]=]

@@ -1,3 +1,9 @@
+## 1.4.4
+- `Lagoon.Load` accepts both an Instance and array of instances
+- Middleware callbacks are now provided an argument table so data can be manipulated in the middleware without a work around.
+- Fixed middleware issue where BindableFunction will not call Outbound middleware
+- Updated documentation info regarding services & controllers, as well as what Lagoon is about.
+
 ## 1.4.3
 - RemoteEvents and RemoteFunction can now be added to the pool even after runtime (old behavior required you to use `:WaitFor` in order to add the Event/Function to the pool)
 - Switched to [rokit](https://github.com/rojo-rbx/rokit)
