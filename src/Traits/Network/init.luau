@@ -102,7 +102,7 @@ local function CreatePool()
 end
 
 local function ProcessMiddleware(MiddlewareHandlers: Array<MiddlewareCallback>, ...: any)
-	local Args = {...}
+	local Args = { ... }
 	local IsPlayer: boolean = IS_SERVER and typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
 
 	for _, Handler in MiddlewareHandlers do
