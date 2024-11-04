@@ -14,7 +14,6 @@
 local RunService = game:GetService("RunService")
 
 -- Modules:
-local Trait = require(script.Parent.Base)
 local Types = require(script.Parent.Parent.Types)
 
 -- Types:
@@ -52,8 +51,6 @@ local DEFAULT_OPTIONS = {
 
 	@class Logger
 	Used for logging information in a production or development environment.
-
-	Inherits from [TraitBase](/api/TraitBase)
 
 ]=]
 local Logger = {} :: Logger
@@ -94,7 +91,7 @@ function Logger:Log(Context: LogContext, ...: any)
 
 	local Prefix = LogOptions.Timestamp and `[{os.date("%H:%M:%S")}] ` or ""
 
-	local Name = LogOptions.Name or self.Name
+	local Name = LogOptions.Name or self.Name or "Logger"
 
 	if Name and Name ~= "" then
 		Prefix ..= `[{Name}({Context:upper()})]`
@@ -109,4 +106,4 @@ function Logger:Log(Context: LogContext, ...: any)
 	end
 end
 
-return Trait.new(Logger)
+return Logger

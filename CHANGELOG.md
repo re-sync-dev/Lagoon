@@ -1,3 +1,23 @@
+## 1.4.5
+- Completely removed the Trait base class (Unneeded & complicated trait creation for no good reason)
+- Loaded traits can now be directly accessed from `Lagoon.Traits`
+- Added `:Get` method to the Network trait (functions almost the same as the old `:WaitFor`)
+- `:WaitFor` now wraps around `:Get`, it has the same signature only difference is when it calls `:Get` it will ensure there is a timeout.
+- Removed properties `.Connection`, `.Handlers`, and `.IsAttached` from `PoolItem`
+- `:Connect` now functions much closer to normal remotes previously it return a universal connection to the remote/signal which can obviously cause problems so is now remedied.
+- `:Bind` now returns a function to unbind the callback from a RemoteFunction, this is more syntax sugar than anything doesn't really serve a technical purpose aside from QoL
+- Remotes can now be added to the Remotes folder without being included in the pool using the `NoPool` attribute
+- Updated the network type to reflect trait changes
+- Controllers & services are now derived from a base module class (There is no difference between controllers & services they are just there for compatibility)
+- Fixed middleware bug
+- Added `Lagoon.Wrap` which allows modules to be integrated into the lagoon environment without conforming to an architecture
+- `Lagoon.MakeService` and `Lagoon.MakeController` now wraps around the `Lagoon.Wrap` function and has context checks to maintain the 'Service' and 'Controller' architecture (Checking if the script is running on the client or server)
+- Updated docs to reflect version changes
+- Removed Network/Serializer
+- Removed Network/JSON
+- Removed Squash dependency
+- Switched signal dependency to [LemonSignal](https://data-oriented-house.github.io/LemonSignal/)
+
 ## 1.4.4
 - `Lagoon.Load` accepts both an Instance and array of instances
 - Middleware callbacks are now provided an argument table so data can be manipulated in the middleware without a work around.

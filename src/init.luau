@@ -10,33 +10,32 @@
 
 --]==]
 
+-- Services:
+local RunService = game:GetService("RunService")
+
 -- Modules:
-local Service = require(script.Service)
-local Trait = require(script.Traits.Base)
-local Controller = require(script.Controller)
+local BaseModule = require(script.BaseModule)
+
+-- Constants:
+local IS_SERVER = RunService:IsServer()
+local IS_CLIENT = RunService:IsClient()
 
 -- Variables:
 local Modules = {}
 
+-- Types:
+-- Private:
+type Service = { --> Type alias for BaseModule
+	Name: string,
+	ApplyTrait: <S, T>(self: S, Trait: T) -> S & T,
+}
+
+type Controller = { --> Type alias for BaseModule
+	Name: string,
+	ApplyTrait: <S, T>(self: S, Trait: T) -> S & T,
+}
+
 -- Functions:
---[=[
-
-	@within Lagoon
-	@function CollectName
-	@ignore
-
-	Uses 'getfenv' to get the name of then script that called the function
-
-	@return string
-
-]=]
-local function CollectName(): string
-	local GetFenv = getfenv
-	local Env = GetFenv(0)
-
-	return Env.script.Name
-end
-
 -- Main Module:
 --[=[
 
@@ -70,18 +69,15 @@ Lagoon.Traits = require(script.Traits)
 	return Lagoon.MakeService(MyService)
 	```
 
+	@return Service & T
+
 ]=]
-function Lagoon.MakeService<T>(Module: T)
-	local Name = CollectName()
-	local NewService = Service.new(Module)
-
-	Modules[Name] = NewService
-
-	if NewService.Name == nil then
-		NewService.Name = Name
+function Lagoon.MakeService<T>(Module: T): Service & T
+	if not IS_SERVER then
+		error("[Lagoon]: MakeService can only be called from the server.")
 	end
 
-	return NewService
+	return Lagoon.Wrap(Module)
 end
 
 --[=[
@@ -107,63 +103,34 @@ end
 	return Lagoon.MakeController(MyController)
 	```
 
+	@return Controller & T
+
 ]=]
-function Lagoon.MakeController<T>(Module: T)
-	local Name = CollectName()
-	local NewController = Controller.new(Module)
-
-	Modules[Name] = NewController
-
-	if NewController.Name == nil then
-		NewController.Name = Name
+function Lagoon.MakeController<T>(Module: T): Controller & T
+	if not IS_CLIENT then
+		error("[Lagoon]: MakeController can only be called from the client.")
 	end
 
-	return NewController
+	return Lagoon.Wrap(Module)
 end
 
 --[=[
 
 	@within Lagoon
-	@function MakeTrait
+	@function Wrap
 	@param Module T
-	Creates a Trait using the module parameter, the created trait can be applied to
-	services/controllers using `Service:ApplyTrait(MyCustomTrait)` or
-	`Controller:ApplyTrait(MyCustomTrait)`
 
-	**Usage:**   
-	**MyCustomTrait.lua**
-	```lua
-	-- This is in a ModuleScript
-	local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
+	Integrates a module into the lagoon environment
 
-	local MyCustomTrait = {}
-
-	function MyCustomTrait.Sum(a: number, b: number)
-		return a + b
-	end
-
-	return Lagoon.MakeTrait(MyCustomTrait)
-	```
-
-	**MyController.lua**
-	```lua
-	-- This is in a ModuleScript
-	local Lagoon = require(ReplicatedStorage.Packages.Lagoon)
-	local MyCustomTrait = require(Path.To.MyCustomTrait)
-
-	local MyController = {}
-	MyController.IsController = true
-
-	function MyController.PrintFromClient()
-		print("Hello from the client!")
-	end
-
-	return Lagoon.MakeController(MyController):ApplyTrait(MyCustomTrait)
-	```
+	@return Module & T
 
 ]=]
-function Lagoon.MakeTrait<T>(Module: T)
-	return Trait.new(Module)
+function Lagoon.Wrap<T>(Module: T)
+	local Object = BaseModule.new(Module)
+
+	Modules[Object.Name] = Object
+
+	return Object
 end
 
 --[=[

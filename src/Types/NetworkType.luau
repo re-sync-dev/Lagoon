@@ -34,11 +34,8 @@ export type Middleware = {
 }
 
 export type NetworkPoolItem<T> = {
-	IsAttached: boolean,
-	Connection: RBXScriptConnection?,
 	Middleware: MiddlewareEntry,
 	Ref: T,
-	Handlers: Array<(...any) -> ()>,
 }
 
 export type Network = {
@@ -49,6 +46,12 @@ export type Network = {
 	CreateEvent: (self: Network, Name: string, IsUnreliable: boolean?) -> NetworkPoolItem<RemoteEvent>,
 
 	CreateFunction: (self: Network, Name: string) -> NetworkPoolItem<RemoteFunction>,
+
+	Get: (
+		self: Network,
+		Name: string,
+		Timeout: number?
+	) -> NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?,
 
 	WaitFor: (
 		self: Network,
@@ -61,7 +64,7 @@ export type Network = {
 	Once: (self: Network, Name: string, Callback: (...any) -> ()) -> RBXScriptConnection?,
 	Connect: (self: Network, Name: string, Callback: (...any) -> ()) -> RBXScriptConnection?,
 
-	Bind: (self: Network, Name: string, Callback: (...any) -> ()) -> (),
+	Bind: (self: Network, Name: string, Callback: (...any) -> ()) -> () -> (),
 
 	Fire: (self: Network, Name: string, ...any) -> (),
 	Invoke: (self: Network, Name: string, ...any) -> any,

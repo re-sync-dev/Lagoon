@@ -3,7 +3,7 @@ sidebar_position: 1
 ---
 
 # About
-Lagoon is a barebones framework that can be added anywhere with low requirements for integration. Usage examples can be found [here](https://github.com/re-sync-dev/Lagoon/releases).
+Lagoon is a barebones framework that can be added anywhere with low integration requirements. Usage examples can be found [here](https://github.com/re-sync-dev/Lagoon/releases).
 
 ## Why Lagoon?
 ### Simplicity

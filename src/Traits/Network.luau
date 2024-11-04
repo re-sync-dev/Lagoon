@@ -11,18 +11,14 @@
 --]==]
 
 -- Services:
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Folders:
 local ProjectRoot = script.Parent.Parent
 local Packages = ProjectRoot:FindFirstChild("Packages") or ProjectRoot.Parent
 
 -- Modules:
-local JSON = require(script.JSON)
-local Trait = require(script.Parent.Base)
-local Serializer = require(script.Serializer)
-
 local Types = require(ProjectRoot.Types)
 
 local Signal = require(Packages.Signal)
@@ -58,9 +54,6 @@ type MiddlewareCallback = Types.MiddlewareCallback
 
 	@within Network
 	@interface NetworkPoolItem<T>
-	.Connection RBXScriptConnection?,
-	.Handlers Array<MiddlwareCallback>,
-	.IsAttached boolean,
 	.Middleware MiddlewareEntry,
 	.Ref T
 
@@ -80,14 +73,11 @@ local Remotes: Folder = ReplicatedStorage:FindFirstChild("Remotes")
 -- Functions:
 local function CreatePoolItem<T>(Ref: T): PoolItem<T>
 	return {
-		IsAttached = false,
-		Connection = nil,
 		Middleware = {
 			Inbound = {},
 			Outbound = {},
 		},
 		Ref = Ref,
-		Handlers = {},
 	}
 end
 
@@ -101,12 +91,9 @@ local function CreatePool()
 	return Pool
 end
 
-local function ProcessMiddleware(MiddlewareHandlers: Array<MiddlewareCallback>, ...: any)
-	local Args = { ... }
-	local IsPlayer: boolean = IS_SERVER and typeof(Args[1]) == "Instance" and Args[1]:IsA("Player") or false
-
+local function ProcessMiddleware(MiddlewareHandlers: Array<MiddlewareCallback>, Args: any)
 	for _, Handler in MiddlewareHandlers do
-		local ShouldCancel = IsPlayer and Handler(Args[1], table.unpack(Args, 2)) or Handler(...)
+		local ShouldCancel = Handler(Args)
 
 		if ShouldCancel == true then
 			return
@@ -122,8 +109,6 @@ end
 	@class Network
 	Used for networking either across the client -> server boundary or across scripts using Signals.
 
-	Inherits from [TraitBase](/api/TraitBase)
-
 ]=]
 local Network = {} :: Network
 
@@ -135,22 +120,6 @@ local Network = {} :: Network
 	@private
 
 ]=]
-
---[=[
-
-	@within Network
-	@prop Serializer Serializer
-
-]=]
-Network.Serializer = Serializer
-
---[=[
-
-	@within Network
-	@prop JSON JSON
-
-]=]
-Network.JSON = JSON
 
 --[=[
 
@@ -241,34 +210,51 @@ end
 --[=[
 
 	@within Network
-	@method WaitFor
+	@method Get
 	@param Name string
 	@param Timeout number?
 
 	@return NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?
 
 ]=]
-function Network:WaitFor(Name: string, Timeout: number?)
-	local Time = Timeout or DEFAULT_TIMEOUT
+function Network:Get(Name: string, Timeout: number?)
 	local Result = self._Pool[Name]
 
 	if Result then
 		return Result
 	end
 
-	repeat
-		local Remote = Remotes:FindFirstChild(Name)
+	if Timeout then
+		repeat
+			local Remote = Remotes:FindFirstChild(Name)
 
-		if not Result and Remote then
-			Result = Remote
-			self._Pool[Remote.Name] = CreatePoolItem(Remote)
-		end
+			if not Result and Remote then
+				Result = Remote
+				self._Pool[Remote.Name] = CreatePoolItem(Remote)
+			end
 
-		Time -= 0.1
-		task.wait(0.1)
-	until Result or Time <= 0
+			Timeout -= 0.1
+			task.wait(0.1)
+		until Result or Timeout <= 0
+	end
 
 	return Result
+end
+
+--[=[
+
+	@within Network
+	@method WaitFor
+	@param Name string
+	@param Timeout number?
+
+	Wraps around the `:Get` and passes a default timeout to `:Get` if one is not provided.
+
+	@return NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?
+
+]=]
+function Network:WaitFor(Name: string, Timeout: number?)
+	self:Get(Name, Timeout or DEFAULT_TIMEOUT)
 end
 
 --[=[
@@ -320,12 +306,6 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 		return
 	end
 
-	table.insert(Item.Handlers, Callback)
-
-	if Item.IsAttached then
-		return Item.Connection :: RBXScriptConnection
-	end
-
 	local Signal: Signal
 
 	local ItemRef = Item.Ref
@@ -336,36 +316,17 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 		Signal = ItemRef
 	end
 
-	Item.IsAttached = true
-	Item.Connection = Signal:Connect(function(...: any)
-		local Args = { ... }
+	return (
+		Signal:Connect(function(...: any)
+			local Args = { ... }
 
-		local ShouldSerialize = typeof(ItemRef) == "Instance" and (ItemRef:GetAttribute("Serialize") :: boolean)
-			or false
-
-		if ShouldSerialize then
-			local IsPlayer = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player")
-
-			if IsPlayer then
-				local Player = table.remove(Args, 1)
-
-				Args = Serializer.Deserialize(Args[1])
-				table.insert(Args, 1, Player)
-			else
-				Args = Serializer.Deserialize(Args[1])
+			if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
+				return
 			end
-		end
 
-		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
-			return
-		end
-
-		for _, Handler in Item.Handlers do
-			task.defer(Handler, table.unpack(Args))
-		end
-	end) :: any
-
-	return Item.Connection :: RBXScriptConnection
+			Callback(table.unpack(Args))
+		end) :: any
+	) :: RBXScriptConnection
 end
 
 --[=[
@@ -401,22 +362,6 @@ function Network:Once(Name: string, Callback: (...any) -> ())
 	return Signal:Once(function(...)
 		local Args = { ... }
 
-		local ShouldSerialize = typeof(ItemRef) == "Instance" and (ItemRef:GetAttribute("Serialize") :: boolean)
-			or false
-
-		if ShouldSerialize then
-			local IsPlayer = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player")
-
-			if IsPlayer then
-				local Player = table.remove(Args, 1)
-
-				Args = Serializer.Deserialize(Args[1])
-				table.insert(Args, 1, Player)
-			else
-				Args = Serializer.Deserialize(Args[1])
-			end
-		end
-
 		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
 			return
 		end
@@ -443,31 +388,11 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 		return
 	end
 
-	if Item.IsAttached then
-		return
-	end
-
 	local ItemRef = Item.Ref
 	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
 
-	Item.IsAttached = true
 	ItemRef[Function] = function(...: any)
 		local Args = { ... }
-
-		local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
-
-		if ShouldSerialize then
-			local IsPlayer = typeof(Args[1]) == "Instance" and Args[1]:IsA("Player")
-
-			if IsPlayer then
-				local Player = table.remove(Args, 1)
-
-				Args = Serializer.Deserialize(Args[1])
-				table.insert(Args, 1, Player)
-			else
-				Args = Serializer.Deserialize(Args[1])
-			end
-		end
 
 		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
 			return
@@ -480,6 +405,10 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 		end
 
 		return table.unpack(Result)
+	end
+
+	return function()
+		ItemRef[Function] = nil
 	end
 end
 
@@ -516,12 +445,6 @@ function Network:Fire(Name: string, ...: any)
 	local ItemRef = Item.Ref
 
 	if typeof(ItemRef) == "Instance" and ItemRef:IsA("BaseRemoteEvent") then
-		local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
-
-		if ShouldSerialize then
-			Args = { Serializer.Serialize(...) }
-		end
-
 		local Method = ""
 
 		if IS_SERVER then
@@ -568,12 +491,6 @@ function Network:Invoke(Name: string, ...: any): any
 	end
 
 	local ItemRef = Item.Ref
-	local ShouldSerialize = (ItemRef:GetAttribute("Serialize") :: boolean) or false
-
-	if ShouldSerialize then
-		Args = { Serializer.Serialize(...) }
-	end
-
 	local InvokeMethod = IS_SERVER and "InvokeClient" or "InvokeServer"
 
 	return ItemRef[InvokeMethod](ItemRef, table.unpack(Args))
@@ -597,7 +514,11 @@ Remotes.ChildAdded:Connect(function(Child: Instance)
 		return
 	end
 
+	if Child:GetAttribute("NoPool") then
+		return
+	end
+
 	Network._Pool[Child.Name] = CreatePoolItem(Child)
 end)
 
-return Trait.new(Network)
+return Network

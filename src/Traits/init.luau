@@ -23,9 +23,6 @@ type Traits = {
 	Logger: Logger,
 }
 
--- Variables:
-local Cache = {} :: Traits
-
 -- Main Module:
 --[=[
 
@@ -35,22 +32,21 @@ local Cache = {} :: Traits
 	**Built-in traits:**
 	- [Network](/api/Network) is for networking either across the boundary or within it
 	- [Logger](/api/Logger) is used for logging information in a production or development environment.
-	- [TraitBase](/api/TraitBase) is the base class used for all traits.
 
 ]=]
 local Traits = setmetatable({}, {
 	__index = function(self: Traits, Key: string)
-		if not Cache[Key] then
+		if not rawget(self, Key) then
 			local TraitModule = script:FindFirstChild(Key)
 
 			if not TraitModule then
 				return
 			end
 
-			Cache[Key] = require(TraitModule)
+			rawset(self, Key, require(TraitModule))
 		end
 
-		return Cache[Key]
+		return rawget(self, Key)
 	end,
 })
 
