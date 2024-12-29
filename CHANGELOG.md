@@ -1,3 +1,9 @@
+## 1.4.6
+- Function `Lagoon.Load` now takes a second optional argument `ShouldTime` which will provide the time each module took to load
+- Added folder based module loading
+- Added module depth constraint
+- Updated docs
+
 ## 1.4.5
 - Completely removed the Trait base class (Unneeded & complicated trait creation for no good reason)
 - Loaded traits can now be directly accessed from `Lagoon.Traits`

@@ -1,0 +1,16 @@
+{
+	"name": "LagoonExample-LoadTimes",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"Packages": {
+				"$path": "Packages"
+			}
+		},
+		"ServerScriptService": {
+			"Server": {
+				"$path": "src/server"
+			}
+		}
+	}
+}
