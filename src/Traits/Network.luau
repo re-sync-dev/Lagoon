@@ -1,3 +1,4 @@
+--!strict
 --[==[
 
 	Copyright (C) Re-Sync - All Rights Reserved
@@ -53,12 +54,12 @@ type MiddlewareCallback = Types.MiddlewareCallback
 --[=[
 
 	@within Network
-	@interface NetworkPoolItem<T>
+	@interface NetworkPoolItem
 	.Middleware MiddlewareEntry,
-	.Ref T
+	.Ref RemoteEvent | RemoteFunction | Signal<any>
 
 ]=]
-type PoolItem<T> = Types.NetworkPoolItem<T>
+type PoolItem = Types.NetworkPoolItem
 type Middleware = Types.Middleware
 
 type Network = Types.Network
@@ -71,14 +72,14 @@ local DEFAULT_TIMEOUT = 5
 local Remotes: Folder = ReplicatedStorage:FindFirstChild("Remotes")
 
 -- Functions:
-local function CreatePoolItem<T>(Ref: T): PoolItem<T>
+local function CreatePoolItem<T>(Ref: T): PoolItem
 	return {
 		Middleware = {
 			Inbound = {},
 			Outbound = {},
 		},
 		Ref = Ref,
-	}
+	} :: any
 end
 
 local function CreatePool()
@@ -115,7 +116,7 @@ local Network = {} :: Network
 --[=[
 
 	@within Network
-	@prop _Pool Dictionary<NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>>
+	@prop _Pool Dictionary<NetworkPoolItem>
 	@readonly
 	@private
 
@@ -129,19 +130,21 @@ local Network = {} :: Network
 
 	Appends a signal with the given name to the net pool.
 
-	@return PoolItem<Signal>
+	@return NetworkPoolItem
 
 ]=]
 function Network:CreateSignal(Name: string)
-	local Item = self._Pool[Name]
+	local Item: any = self._Pool[Name]
 
 	if Item then
 		return Item
 	end
 
-	self._Pool[Name] = CreatePoolItem(Signal.new())
+	Item = CreatePoolItem(Signal.new())
 
-	return self._Pool[Name]
+	self._Pool[Name] = Item
+
+	return Item
 end
 
 --[=[
@@ -153,11 +156,11 @@ end
 
 	Appends a RemoteEvent with the given name to the net pool.
 
-	@return PoolItem<RemoteEvent>
+	@return NetworkPoolItem
 
 ]=]
-function Network:CreateEvent(Name: string, IsUnreliable: boolean?): PoolItem<RemoteEvent>
-	local Item = self._Pool[Name]
+function Network:CreateEvent(Name: string, IsUnreliable: boolean?)
+	local Item: any = self._Pool[Name]
 
 	if Item then
 		return Item
@@ -174,9 +177,11 @@ function Network:CreateEvent(Name: string, IsUnreliable: boolean?): PoolItem<Rem
 	RemoteEvent.Name = Name
 	RemoteEvent.Parent = Remotes
 
-	self._Pool[Name] = CreatePoolItem(RemoteEvent)
+	Item = CreatePoolItem(RemoteEvent)
 
-	return self._Pool[Name]
+	self._Pool[Name] = Item
+
+	return Item
 end
 
 --[=[
@@ -187,11 +192,11 @@ end
 
 	Appends a RemoteFunction with the given name to the net pool.
 
-	@return RemoteFunction
+	@return NetworkPoolItem
 
 ]=]
-function Network:CreateFunction(Name: string): PoolItem<RemoteFunction>
-	local Item = self._Pool[Name]
+function Network:CreateFunction(Name: string)
+	local Item: any = self._Pool[Name]
 
 	if Item then
 		return Item
@@ -202,9 +207,11 @@ function Network:CreateFunction(Name: string): PoolItem<RemoteFunction>
 	RemoteFunction.Name = Name
 	RemoteFunction.Parent = Remotes
 
-	self._Pool[Name] = CreatePoolItem(RemoteFunction)
+	Item = CreatePoolItem(RemoteFunction)
 
-	return self._Pool[Name]
+	self._Pool[Name] = Item
+
+	return Item
 end
 
 --[=[
@@ -214,7 +221,7 @@ end
 	@param Name string
 	@param Timeout number?
 
-	@return NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?
+	@return NetworkPoolItem?
 
 ]=]
 function Network:Get(Name: string, Timeout: number?)
@@ -226,11 +233,11 @@ function Network:Get(Name: string, Timeout: number?)
 
 	if Timeout then
 		repeat
-			local Remote = Remotes:FindFirstChild(Name)
+			local Remote = Remotes:FindFirstChild(Name) :: (RemoteEvent | UnreliableRemoteEvent | RemoteFunction)?
 
 			if not Result and Remote then
-				Result = Remote
-				self._Pool[Remote.Name] = CreatePoolItem(Remote)
+				Result = CreatePoolItem(Remote)
+				self._Pool[Remote.Name] = Result
 			end
 
 			Timeout -= 0.1
@@ -250,11 +257,11 @@ end
 
 	Wraps around the `:Get` and passes a default timeout to `:Get` if one is not provided.
 
-	@return NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?
+	@return NetworkPoolItem?
 
 ]=]
 function Network:WaitFor(Name: string, Timeout: number?)
-	self:Get(Name, Timeout or DEFAULT_TIMEOUT)
+	return self:Get(Name, Timeout or DEFAULT_TIMEOUT)
 end
 
 --[=[
@@ -266,7 +273,7 @@ end
 
 ]=]
 function Network:AddMiddleware(Name: string, ...: Middleware)
-	local Item: PoolItem<any> = self._Pool[Name]
+	local Item: PoolItem? = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
@@ -299,7 +306,7 @@ end
 
 ]=]
 function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConnection?
-	local Item: PoolItem<RemoteEvent | Signal> = self._Pool[Name]
+	local Item: PoolItem = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
@@ -310,8 +317,12 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 
 	local ItemRef = Item.Ref
 
-	if typeof(ItemRef) == "Instance" and ItemRef:IsA("BaseRemoteEvent") then
-		Signal = (ItemRef :: any)[IS_SERVER and "OnServerEvent" or "OnClientEvent"] --> Type assertion is free :100:
+	if typeof(ItemRef) == "Instance" then
+		if ItemRef:IsA("BaseRemoteEvent") then
+			Signal = (ItemRef :: any)[IS_SERVER and "OnServerEvent" or "OnClientEvent"] --> Type assertion is free :100:
+		else
+			error(`[Network]: {Name} is not a RemoteEvent or Signal`)
+		end
 	else
 		Signal = ItemRef
 	end
@@ -326,7 +337,7 @@ function Network:Connect(Name: string, Callback: (...any) -> ()): RBXScriptConne
 
 			Callback(table.unpack(Args))
 		end) :: any
-	) :: RBXScriptConnection
+	) :: any
 end
 
 --[=[
@@ -342,7 +353,7 @@ end
 
 ]=]
 function Network:Once(Name: string, Callback: (...any) -> ())
-	local Item: PoolItem<RemoteEvent | Signal> = self._Pool[Name]
+	local Item: PoolItem? = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
@@ -353,21 +364,27 @@ function Network:Once(Name: string, Callback: (...any) -> ())
 
 	local ItemRef = Item.Ref
 
-	if typeof(ItemRef) == "Instance" and ItemRef:IsA("BaseRemoteEvent") then
-		Signal = (ItemRef :: any)[IS_SERVER and "OnServerEvent" or "OnClientEvent"] --> Type assertion is free :100:
+	if typeof(ItemRef) == "Instance" then
+		if ItemRef:IsA("BaseRemoteEvent") then
+			Signal = (ItemRef :: any)[IS_SERVER and "OnServerEvent" or "OnClientEvent"] --> Type assertion is free :100:
+		else
+			error(`[Network]: {Name} is not a RemoteEvent or Signal`)
+		end
 	else
 		Signal = ItemRef
 	end
 
-	return Signal:Once(function(...)
-		local Args = { ... }
+	return (
+		Signal:Once(function(...)
+			local Args = { ... }
 
-		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
-			return
-		end
+			if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
+				return
+			end
 
-		Callback(table.unpack(Args))
-	end)
+			Callback(table.unpack(Args))
+		end)
+	) :: any
 end
 
 --[=[
@@ -381,7 +398,7 @@ end
 
 ]=]
 function Network:Bind(Name: string, Callback: (...any) -> any)
-	local Item: PoolItem<RemoteFunction> = self._Pool[Name]
+	local Item: PoolItem? = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
@@ -389,9 +406,17 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 	end
 
 	local ItemRef = Item.Ref
-	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
 
-	ItemRef[Function] = function(...: any)
+	if typeof(ItemRef) ~= "Instance" then
+		return
+	elseif ItemRef:IsA("BaseRemoteEvent") then
+		return
+	end
+
+	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke";
+
+	-- Unsafe dynamic setting of field warning
+	(ItemRef :: any)[Function] = function(...: any)
 		local Args = { ... }
 
 		if not ProcessMiddleware(Item.Middleware.Inbound, Args) then
@@ -408,7 +433,8 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 	end
 
 	return function()
-		ItemRef[Function] = nil
+		-- Unsafe dynamic setting of field warning
+		(ItemRef :: any)[Function] = nil
 	end
 end
 
@@ -421,17 +447,15 @@ end
 
 ]=]
 function Network:Fire(Name: string, ...: any)
-	local Item: PoolItem<RemoteEvent | Signal> = self._Pool[Name]
+	local Item: PoolItem = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
 		return
-	elseif typeof(Item.Ref) == "Instance" then
-		if not Item.Ref:IsA("BaseRemoteEvent") then
-			warn(`[Network]: {Name} is not a RemoteEvent`)
-			return
-		end
-	elseif typeof(Item.Ref) ~= "table" then
+	elseif typeof(Item.Ref) == "Instance" and Item.Ref:IsA("RemoteFunction") then
+		warn(`[Network]: {Name} is not a RemoteEvent`)
+		return
+	elseif type(Item.Ref) ~= "table" then
 		warn(`[Network]: {Name} is not a Signal`)
 		return
 	end
@@ -455,7 +479,7 @@ function Network:Fire(Name: string, ...: any)
 			Method = "FireServer"
 		end
 
-		local RetypedRef = ItemRef :: RemoteEvent
+		local RetypedRef = ItemRef :: any
 
 		RetypedRef[Method](RetypedRef, table.unpack(Args))
 	else
@@ -474,12 +498,12 @@ end
 
 ]=]
 function Network:Invoke(Name: string, ...: any): any
-	local Item: PoolItem<RemoteFunction> = self._Pool[Name]
+	local Item: PoolItem = self._Pool[Name]
 
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
 		return
-	elseif typeof(Item.Ref) ~= "Instance" or not Item.Ref:IsA("RemoteFunction") then
+	elseif typeof(Item.Ref) ~= "Instance" or Item.Ref:IsA("BaseRemoteEvent") then
 		warn(`[Network]: {Name} is not a RemoteFunction`)
 		return
 	end
@@ -493,7 +517,8 @@ function Network:Invoke(Name: string, ...: any): any
 	local ItemRef = Item.Ref
 	local InvokeMethod = IS_SERVER and "InvokeClient" or "InvokeServer"
 
-	return ItemRef[InvokeMethod](ItemRef, table.unpack(Args))
+	-- Unsafe dynamic setting of field warning
+	return (ItemRef :: any)[InvokeMethod](ItemRef, table.unpack(Args))
 end
 
 -- Init:
@@ -502,8 +527,6 @@ if not Remotes then
 	Ref.Name = "Remotes"
 	Ref.Parent = ReplicatedStorage
 	Remotes = Ref
-
-	Ref = nil
 end
 
 Network._Pool = CreatePool()

@@ -43,11 +43,11 @@ local Traits = setmetatable({}, {
 				return
 			end
 
-			rawset(self, Key, require(TraitModule))
+			rawset(self, Key, (require)(TraitModule))
 		end
 
 		return rawget(self, Key)
 	end,
 })
 
-return Traits :: Traits
+return (Traits :: any) :: Traits -- The types are definitely related

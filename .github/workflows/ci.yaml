@@ -16,8 +16,8 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - uses: ok-nick/setup-aftman@v0.4.2
-      name: Setup Aftman
+    - uses: kalrnlo/setup-rokit@v1.0.0
+      name: Setup RoKit
       with:
         token: ${{ github.token }}
     

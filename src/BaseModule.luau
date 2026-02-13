@@ -48,7 +48,13 @@ local function CollectName(): string
 	local GetFenv = getfenv
 	local Env = GetFenv(0)
 
-	return Env.script.Name
+	local Script = Env.script
+
+	if not Script then
+		return "N/A"
+	end
+
+	return Script.Name
 end
 
 -- Main Module:
@@ -75,7 +81,7 @@ BaseModule.__index = BaseModule
 
 ]=]
 function BaseModule.new<S, T>(Module: S): Module & S
-	local self = SafeSetMetatable(Module, BaseModule)
+	local self: any = SafeSetMetatable(Module, BaseModule)
 
 	if not self.Name then
 		self.Name = CollectName()

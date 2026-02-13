@@ -33,38 +33,48 @@ export type Middleware = {
 	Outbound: MiddlewareCallback?,
 }
 
-export type NetworkPoolItem<T> = {
+type EventPoolItem = {
+	Ref: RemoteEvent,
 	Middleware: MiddlewareEntry,
-	Ref: T,
 }
 
+type FunctionPoolItem = {
+	Ref: RemoteFunction,
+	Middleware: MiddlewareEntry,
+}
+
+type SignalPoolItem<T> = {
+	Ref: Signal<T>,
+	Middleware: MiddlewareEntry,
+}
+
+export type NetworkPoolItem = EventPoolItem | FunctionPoolItem | SignalPoolItem<any>
+
 export type Network = {
-	_Pool: Dictionary<NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>>,
+	_Pool: Dictionary<NetworkPoolItem>,
 
-	CreateSignal: (self: Network, Name: string) -> NetworkPoolItem<Signal<any>>,
-
-	CreateEvent: (self: Network, Name: string, IsUnreliable: boolean?) -> NetworkPoolItem<RemoteEvent>,
-
-	CreateFunction: (self: Network, Name: string) -> NetworkPoolItem<RemoteFunction>,
+	CreateEvent: (self: Network, Name: string, IsUnreliable: boolean?) -> EventPoolItem,
+	CreateSignal: (self: Network, Name: string) -> SignalPoolItem<any>,
+	CreateFunction: (self: Network, Name: string) -> FunctionPoolItem,
 
 	Get: (
 		self: Network,
 		Name: string,
 		Timeout: number?
-	) -> NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?,
+	) -> NetworkPoolItem?,
 
 	WaitFor: (
 		self: Network,
 		Name: string,
 		Timeout: number?
-	) -> NetworkPoolItem<RemoteEvent | RemoteFunction | Signal<any>>?,
+	) -> NetworkPoolItem?,
 
 	AddMiddleware: (self: Network, Name: string, ...Middleware) -> (),
 
 	Once: (self: Network, Name: string, Callback: (...any) -> ()) -> RBXScriptConnection?,
 	Connect: (self: Network, Name: string, Callback: (...any) -> ()) -> RBXScriptConnection?,
 
-	Bind: (self: Network, Name: string, Callback: (...any) -> ()) -> () -> (),
+	Bind: (self: Network, Name: string, Callback: (...any) -> ()) -> (() -> ())?,
 
 	Fire: (self: Network, Name: string, ...any) -> (),
 	Invoke: (self: Network, Name: string, ...any) -> any,

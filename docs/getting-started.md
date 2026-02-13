@@ -41,7 +41,7 @@ return Lagoon.MakeService(MyController)
 ```
 
 ### Understanding Traits
-[Traits](https://en.wikipedia.org/wiki/Trait_(computer_programming)#Rationale) are essentially modules that contain methods, functions, and fields that can be used by Services / Controllers. This reduces the need to copy + paste code and allows necessary abstractions to occur.
+[Traits](https://en.wikipedia.org/wiki/Trait_(computer_programming)#Rationale) is built around the concept of [Composition](https://en.wikipedia.org/wiki/Composition_over_inheritance). This means that we can define a trait with various functions and methods and share those functions and traits with another module without needing to copy + paste those functions into the module we want.
 
 In this example we create a Trait called 'MyCustomTrait' that has a function 'Sum' and takes in 2 arguments of type 'number'
 **MyCustomTrait.luau**
@@ -78,3 +78,46 @@ end
 return Lagoon.MakeController(MyService):ApplyTrait(MyCustomTrait)
 ```
 In the code above we use `:ApplyTrait` which iterates over the trait and essentially merges `MyService` and `MyCustomTrait` giving access to our 'Sum' function.
+
+### Real World Example Of Traits
+Maybe you want to print something in game maybe to catch a bug or just understand what's going on at a given point in time. In a situation like this you could use Lagoon's built-in trait module. It has support for debug logging as well as the roblox log contexts used in functions like [print](https://create.roblox.com/docs/reference/engine/globals/LuaGlobals#print), [warn](https://create.roblox.com/docs/reference/engine/globals/LuaGlobals#warn), and [error](https://create.roblox.com/docs/reference/engine/globals/LuaGlobals#error).
+
+First let's create our base module:
+**MyModule.luau**
+```lua
+local MyModule = {}
+
+function MyModule:Init()
+	-- TODO: Log I <3 Code
+end
+
+return Lagoon.Wrap(MyModule)
+```
+
+Next lets apply Lagoon's logger trait to our module:
+```lua
+local Lagoon = require(Path.To.Lagoon)
+
+local MyModule = {}
+
+function MyModule:Init()
+	-- TODO: Log I <3 Code!
+end
+
+return Lagoon.Wrap(MyModule):ApplyTrait(Lagoon.Traits.Logger)
+```
+
+Now that we've done that lets go ahead and log our phrase:
+```lua
+local Lagoon = require(Path.To.Lagoon)
+
+local MyModule = {}
+
+function MyModule:Init()
+	self:Log("Info", "I <3 Code!")
+end
+
+return Lagoon.Wrap(MyModule):ApplyTrait(Lagoon.Traits.Logger)
+```
+
+In the output we'll see a message along the lines of `[MyModule.Init:7] I <3 Code!`. This shows us the name of the module, the function that called `:Log`, and the line `:Log` was called on.

@@ -1,3 +1,4 @@
+--!strict
 --[==[
 
 	Copyright (C) Re-Sync - All Rights Reserved
@@ -10,9 +11,6 @@
 
 --]==]
 
--- Services:
-local RunService = game:GetService("RunService")
-
 -- Modules:
 local Types = require(script.Parent.Parent.Types)
 
@@ -21,10 +19,10 @@ local Types = require(script.Parent.Parent.Types)
 --[=[
 
 	@within Logger
-	@type LogContext "Debug" | "Info" | "Warn" | "Error" | "Fatal"
+	@type LogType "Info" | "Warn" | "Error" | "Debug/Info" | "Debug/Warn" | "Debug/Error"
 
 ]=]
-type LogContext = Types.LogContext
+type LogType = Types.LogType
 
 --[=[
 
@@ -39,10 +37,8 @@ type LogOptions = Types.LogOptions
 type Logger = Types.Logger
 
 -- Constants:
-local IS_DEVELOPMENT = RunService:IsStudio()
-
 local DEFAULT_OPTIONS = {
-	Debug = IS_DEVELOPMENT,
+	Debug = false,
 	Timestamp = false,
 }
 
@@ -66,43 +62,47 @@ local Logger = {} :: Logger
 
 	@within Logger
 	@method Log
-	@param Context LogContext
+	@param Type LogType
 	@param ... any
 
 	Displays message(s) in the output.
 
 	:::info
-	Debug logs can change context provided there is a delimeter for example 'Debug/Info' while the primary context will be 'Debug' the displayed context will be 'Info'
+	Debug logs can change Type provided there is a delimeter for example 'Debug/Info' while the primary Type will be 'Debug' the displayed Type will be 'Info'
 	:::
 
 ]=]
-function Logger:Log(Context: LogContext, ...: any)
-	local LogOptions: LogOptions = self.LogOptions or DEFAULT_OPTIONS
+function Logger.Log(self, Type: LogType, ...: any)
+	local RetypedSelf = (self :: any) :: { Name: string?, LogOptions: LogOptions? }
+	local LogOptions: LogOptions = RetypedSelf.LogOptions or DEFAULT_OPTIONS
 
-	if Context:sub(1, 5) == "Debug" then
-		if not LogOptions.Debug or not IS_DEVELOPMENT then
+	if Type:sub(1, 5) == "Debug" then
+		if not LogOptions.Debug then
 			return
 		end
 
-		local NewContext = Context:sub(7, #Context)
+		local NewType = Type:sub(7, #Type)
 
-		Context = NewContext ~= "" and NewContext or "Debug" :: LogContext --> Debug logs should be separated by a delimiter at all times, hence the starting index of 7.
+		-- Debug logs should be separated by a delimiter at all times, hence the starting index of 7.
+		Type = ((NewType ~= "" and NewType or "Debug") :: any) :: LogType
 	end
 
 	local Prefix = LogOptions.Timestamp and `[{os.date("%H:%M:%S")}] ` or ""
 
-	local Name = LogOptions.Name or self.Name or "Logger"
+	local Name = LogOptions.Name or RetypedSelf.Name or "Logger"
+
+	local Caller, Line = debug.info(2, "nl")
 
 	if Name and Name ~= "" then
-		Prefix ..= `[{Name}({Context:upper()})]`
+		Prefix ..= `[{Name}.{Caller}:{Line}]`
 	end
 
-	if Context == "Info" then
+	if Type == "Info" then
 		print(Prefix, ...)
-	elseif Context == "Warn" then
+	elseif Type == "Warn" then
 		warn(Prefix, ...)
-	elseif Context == "Error" or Context == "Fatal" then
-		error(`{Prefix} {...}`, 0)
+	elseif Type == "Error" then
+		error(`{Prefix} {...}`, 2)
 	end
 end
 

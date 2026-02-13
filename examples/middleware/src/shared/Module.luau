@@ -29,10 +29,13 @@ function Module:Init()
 	-- Remotes:
 	-- Events:
 	Network:WaitFor("Greet")
-	Network:CreateEvent("Greet", {
-		Inbound = function(Data: {
-			Message: string,
-		})
+	Network:CreateEvent("Greet")
+
+	-- Middleware:
+	Network:AddMiddleware("Greet", {
+		Inbound = function(Args: { any })
+			local Data: { Message: string } = Args[1]
+
 			Data.Message ..= "Client was here!"
 		end,
 	})

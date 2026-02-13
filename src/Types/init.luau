@@ -28,10 +28,10 @@ export type Network = NetworkType.Network
 export type MiddlewareEntry = NetworkType.MiddlewareEntry
 export type MiddlewareCallback = NetworkType.MiddlewareCallback
 export type Middleware = NetworkType.Middleware
-export type NetworkPoolItem<T> = NetworkType.NetworkPoolItem<T>
+export type NetworkPoolItem = NetworkType.NetworkPoolItem
 
 --	Logger:
-export type LogContext = LoggerType.LogContext
+export type LogType = LoggerType.LogType
 export type LogOptions = LoggerType.LogOptions
 export type Logger = LoggerType.Logger
 

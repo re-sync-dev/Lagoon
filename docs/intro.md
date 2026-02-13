@@ -16,12 +16,12 @@ Lagoon by design does not require complete integration into your project, and wi
 Even with the few things Lagoon does provide, Lagoon makes it a point to give developers as much freedom over their systems as possible.
 
 ## What are Services / Controllers?
-In the context of Lagoon they are just modules that run in the context of the server or client. Services are modules ran on the server and Controllers are modules ran on the client.
+In the context of Lagoon they are just modules that are run in different contexts. For example Services conventionally run on the server while on the other hand Controllers are typically ran on the client. Ultimately however under the hood of both `.MakeService` and `.MakeController` they just call `.Wrap` after checking the run context meaning they do the same thing.
 
-## Do I Need to wrap everything in the Lagoon API???
-Put simply no, if you have a module that does not need to directly access the lagoon framework you can declare the module the same as if you weren't using Lagoon at all.
+## Do I Need To Completely Rewrite My Project With Lagoon?
+Put simply no, if you have a module that doesn't need to directly access lagoon a feature like traits for example you can declare the module the same as if you weren't using Lagoon at all.
 
-If you still want to have the benefit of runtime initialization you can just add an `Init` method to the module and `Lagoon.Load` will treat it the same.
+If you still want to have the benefit of runtime initialization you'd only need to add an `:Init` method to the module and `Lagoon.Load` will treat it the same as any other module.
 
 Example:
 ```lua
@@ -38,8 +38,11 @@ return Module
 Lagoon.Load(script.Modules)
 ```
 
+## Inheritance VS Composition
+Lagoon's core design is based on the principle that everything related to it should be barebones and simple. [Inheritance](https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)) famously goes against that philosophy in many cases by creating sometimes very large trees while trees do vary the concept remains the same. The branches CAN tangle which is why Lagoon uses [Composition](https://en.wikipedia.org/wiki/Composition_over_inheritance) in the first place, in short Lagoon aims to present Composition in a digestible format.
+
 :::info
-The best time to use a trait is when you need to have methods, properties or a behavior accessible in multiple locations.
+The best time to use a trait is when you want to share functions and methods across multiple modules or classes
 :::
 
 ## Where can I learn about traits?

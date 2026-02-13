@@ -1,3 +1,18 @@
+## 1.5.0
+- Strict mode is now the standard throughout src
+- Removed Fatal as a log type
+- Renamed LogContext and references to it to LogType
+- Added Debug/* to LogType
+- Fixed some bugs found in Network trait
+- Fixed type warnings in the Network trait
+- Fixed type warnings in the Logger trait
+- Changed log format from `Module(CONTEXT)` -> `Module.CallingFunc:Line`
+- Added doc section for the logger trait
+- Added doc section for the network trait
+- Updated portions of intro page in docs
+- Updated potions of getting-started page in docs
+- Removed aftman tool in favor of rokit
+
 ## 1.4.6
 - Function `Lagoon.Load` now takes a second optional argument `ShouldTime` which will provide the time each module took to load
 - Added folder based module loading
