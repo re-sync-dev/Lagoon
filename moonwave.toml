@@ -1,7 +1,7 @@
 title = "Lagoon"
 gitRepoUrl = "https://github.com/re-sync-dev/Lagoon" # From Git
 gitSourceBranch = "main"
-changelog = true
+changelog = false
 
 [docusaurus]
 onBrokenLinks = "ignore"
