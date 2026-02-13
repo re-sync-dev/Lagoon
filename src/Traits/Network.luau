@@ -22,7 +22,7 @@ local Packages = ProjectRoot:FindFirstChild("Packages") or ProjectRoot.Parent
 -- Modules:
 local Types = require(ProjectRoot.Types)
 
-local Signal = require(Packages.Signal)
+local Signal = (require)(Packages.Signal)
 
 -- Types:
 -- Generic:
@@ -413,7 +413,7 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 		return
 	end
 
-	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke";
+	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
 
 	-- Unsafe dynamic setting of field warning
 	(ItemRef :: any)[Function] = function(...: any)

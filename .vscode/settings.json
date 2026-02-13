@@ -3,5 +3,6 @@
 		"editor.defaultFormatter": "JohnnyMorganz.stylua"
 	},
 
+	"luau-lsp.platform.type": "roblox",
 	"editor.formatOnSave": true
 }

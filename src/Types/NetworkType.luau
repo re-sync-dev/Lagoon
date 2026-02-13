@@ -57,17 +57,9 @@ export type Network = {
 	CreateSignal: (self: Network, Name: string) -> SignalPoolItem<any>,
 	CreateFunction: (self: Network, Name: string) -> FunctionPoolItem,
 
-	Get: (
-		self: Network,
-		Name: string,
-		Timeout: number?
-	) -> NetworkPoolItem?,
+	Get: (self: Network, Name: string, Timeout: number?) -> NetworkPoolItem?,
 
-	WaitFor: (
-		self: Network,
-		Name: string,
-		Timeout: number?
-	) -> NetworkPoolItem?,
+	WaitFor: (self: Network, Name: string, Timeout: number?) -> NetworkPoolItem?,
 
 	AddMiddleware: (self: Network, Name: string, ...Middleware) -> (),
 
