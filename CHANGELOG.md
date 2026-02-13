@@ -6,7 +6,7 @@
 - Fixed some bugs found in Network trait
 - Fixed type warnings in the Network trait
 - Fixed type warnings in the Logger trait
-- Changed log format from `Module(CONTEXT)` -> `Module.CallingFunc:Line`
+- Changed log format from Module(CONTEXT) -> Module.CallingFunc:Line
 - Added doc section for the logger trait
 - Added doc section for the network trait
 - Updated portions of intro page in docs
