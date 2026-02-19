@@ -413,7 +413,7 @@ function Network:Bind(Name: string, Callback: (...any) -> any)
 		return
 	end
 
-	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke"
+	local Function = IS_SERVER and "OnServerInvoke" or "OnClientInvoke";
 
 	-- Unsafe dynamic setting of field warning
 	(ItemRef :: any)[Function] = function(...: any)
@@ -452,9 +452,11 @@ function Network:Fire(Name: string, ...: any)
 	if not Item then
 		warn(`[Network]: Cannot find '{Name}'`)
 		return
-	elseif typeof(Item.Ref) == "Instance" and Item.Ref:IsA("RemoteFunction") then
-		warn(`[Network]: {Name} is not a RemoteEvent`)
-		return
+	elseif typeof(Item.Ref) == "Instance" then
+		if not Item.Ref:IsA("BaseRemoteEvent") then
+			warn(`[Network]: {Name} is not a RemoteEvent`)
+			return
+		end
 	elseif type(Item.Ref) ~= "table" then
 		warn(`[Network]: {Name} is not a Signal`)
 		return
@@ -483,7 +485,7 @@ function Network:Fire(Name: string, ...: any)
 
 		RetypedRef[Method](RetypedRef, table.unpack(Args))
 	else
-		ItemRef:Fire(table.unpack(Args))
+		(ItemRef :: any):Fire(table.unpack(Args))
 	end
 end
 
